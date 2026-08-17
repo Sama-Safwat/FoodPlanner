@@ -1,60 +1,58 @@
 package com.example.foodplanner.data.api
 
+import com.example.foodplanner.data.model.AreaResponse
 import com.example.foodplanner.data.model.CategoryResponse
+import com.example.foodplanner.data.model.IngredientResponse
 import com.example.foodplanner.data.model.MealResponse
+import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MealApi {
 
-    // Search meal by name
     @GET("search.php")
-    suspend fun searchMealByName(
+    fun searchMealByName(
         @Query("s") mealName: String
-    ): MealResponse
+    ): Single<MealResponse>
 
-
-    // Search meals by first letter
     @GET("search.php")
-    suspend fun searchMealsByFirstLetter(
+    fun searchMealsByFirstLetter(
         @Query("f") letter: String
-    ): MealResponse
+    ): Single<MealResponse>
 
-
-    // Get full meal details by ID
     @GET("lookup.php")
-    suspend fun getMealDetails(
+    fun getMealDetails(
         @Query("i") mealId: String
-    ): MealResponse
+    ): Single<MealResponse>
 
-
-    // Get a single random meal
     @GET("random.php")
-    suspend fun getRandomMeal(): MealResponse
+    fun getRandomMeal(): Single<MealResponse>
 
+    @GET("list.php")
+    fun getCategories(
+        @Query("c") list: String = "list"
+    ): Single<CategoryResponse>
 
-    // Get all meal categories
-    @GET("categories.php")
-    suspend fun getCategories(): CategoryResponse
-
-
-    // Get meals by category
     @GET("filter.php")
-    suspend fun getMealsByCategory(
+    fun getMealsByCategory(
         @Query("c") category: String
-    ): MealResponse
+    ): Single<MealResponse>
 
-
-    // Get meals by country / area
     @GET("filter.php")
-    suspend fun getMealsByArea(
+    fun getMealsByArea(
         @Query("a") area: String
-    ): MealResponse
+    ): Single<MealResponse>
 
-
-    // Get meals by main ingredient
     @GET("filter.php")
-    suspend fun getMealsByIngredient(
+    fun getMealsByIngredient(
         @Query("i") ingredient: String
-    ): MealResponse
+    ): Single<MealResponse>
+
+    @GET("list.php")
+    fun getAreas(): Single<AreaResponse>
+
+    @GET("list.php")
+    fun getIngredients(
+        @Query("i") list: String = "list"
+    ): Single<IngredientResponse>
 }

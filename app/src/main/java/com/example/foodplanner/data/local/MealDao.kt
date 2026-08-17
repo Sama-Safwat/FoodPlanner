@@ -10,14 +10,17 @@ import androidx.room.Query
 interface MealDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMeal(meal: MealEntity)
+    fun insertMeal(meal: MealEntity)
 
     @Delete
-    suspend fun deleteMeal(meal: MealEntity)
+    fun deleteMeal(meal: MealEntity)
+
+    @Query("DELETE FROM meals WHERE idMeal = :mealId")
+    fun deleteMealById(mealId: String)
 
     @Query("SELECT * FROM meals")
-    suspend fun getAllMeals(): List<MealEntity>
+    fun getAllMeals(): List<MealEntity>
 
     @Query("SELECT * FROM meals WHERE idMeal = :mealId")
-    suspend fun getMealById(mealId: String): MealEntity?
+    fun getMealById(mealId: String): MealEntity?
 }
