@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "weekly_plan")
 data class PlannedMealEntity(
     @PrimaryKey(autoGenerate = true) val planId: Int = 0,
-    val day: String,          // e.g. "Saturday"
+    val day: String,
     val mealId: String,
     val mealName: String,
     val mealImageUrl: String
