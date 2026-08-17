@@ -7,14 +7,15 @@ import androidx.room.RoomDatabase
 import com.example.foodplanner.utils.Constants
 
 @Database(
-    entities = [MealEntity::class],
+    entities = [MealEntity::class, PlannedMealEntity::class],
     version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun mealDao(): MealDao
-
+    abstract fun favoritesDao(): FavoritesDao
+    abstract fun planDao(): PlanDao
     companion object {
 
         @Volatile
