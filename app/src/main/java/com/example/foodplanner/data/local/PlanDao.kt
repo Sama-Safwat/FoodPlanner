@@ -12,6 +12,9 @@ interface PlanDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addToPlan(meal: PlannedMealEntity)
 
+    @Query("SELECT * FROM weekly_plan WHERE date = :date")
+    fun getMealsForDate(date: String): Flow<List<PlannedMealEntity>>
+
     @Query("DELETE FROM weekly_plan WHERE planId = :planId")
     suspend fun removeFromPlan(planId: Int)
 

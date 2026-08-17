@@ -8,7 +8,7 @@ import com.example.foodplanner.utils.Constants
 
 @Database(
     entities = [MealEntity::class, PlannedMealEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,7 +27,9 @@ abstract class AppDatabase : RoomDatabase() {
 
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    AppDatabase::class.java, Constants.DATABASE_NAME).build()
+                    AppDatabase::class.java, Constants.DATABASE_NAME)
+                    .fallbackToDestructiveMigration()
+                    .build()
 
                 INSTANCE = instance
                 instance

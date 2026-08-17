@@ -8,6 +8,8 @@ class WeeklyPlanRepository(private val dao: PlanDao) {
 
     fun getPlan(): Flow<List<PlannedMealEntity>> = dao.getPlan()
 
+    /** Meals of one specific day (e.g. "2026-08-18") */
+    fun getMealsForDate(date: String) = dao.getMealsForDate(date)
     suspend fun addMealToPlan(meal: PlannedMealEntity) = dao.addToPlan(meal)
 
     suspend fun removeMealFromPlan(planId: Int) = dao.removeFromPlan(planId)
