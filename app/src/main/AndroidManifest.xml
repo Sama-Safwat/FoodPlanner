@@ -29,7 +29,6 @@
         <activity
             android:name=".ui.planner.PlannerActivity"
             android:exported="false" />
-        <activity android:name=".ui.plan.WeeklyPlanActivity" android:exported="false" />
     </application>
 
 </manifest>
