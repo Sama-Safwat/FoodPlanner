@@ -45,6 +45,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-auth")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)

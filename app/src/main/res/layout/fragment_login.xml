@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_lg">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            style="@style/FoodPlannerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:text="Welcome Back!"
+            android:textSize="@dimen/text_heading"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:background="@drawable/bg_input"
+            android:hint="Email Address"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:background="@drawable/bg_input"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint"
+            app:layout_constraintTop_toBottomOf="@+id/etEmail" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            style="@style/FoodPlannerButton"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:layout_marginEnd="24dp"
+            android:text="Login"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etPassword" />
+
+        <Button
+            android:id="@+id/btnGuest"
+            style="@style/FoodPlannerButton"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:layout_marginEnd="24dp"
+            android:backgroundTint="@color/surface_variant"
+            android:text="Continue as Guest"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnLogin" />
+
+        <TextView
+            android:id="@+id/tvRegister"
+            style="@style/FoodPlannerBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:text="Don't have an account? Sign Up"
+            android:textColor="@color/primary_light"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnGuest" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
