@@ -15,11 +15,6 @@ interface MealApi {
         @Query("s") mealName: String
     ): Single<MealResponse>
 
-    @GET("search.php")
-    fun searchMealsByFirstLetter(
-        @Query("f") letter: String
-    ): Single<MealResponse>
-
     @GET("lookup.php")
     fun getMealDetails(
         @Query("i") mealId: String
@@ -28,10 +23,18 @@ interface MealApi {
     @GET("random.php")
     fun getRandomMeal(): Single<MealResponse>
 
+    @GET("categories.php")
+    fun getCategories(): Single<CategoryResponse>
+
     @GET("list.php")
-    fun getCategories(
-        @Query("c") list: String = "list"
-    ): Single<CategoryResponse>
+    fun getAreas(
+        @Query("a") list: String = "list"
+    ): Single<AreaResponse>
+
+    @GET("list.php")
+    fun getIngredients(
+        @Query("i") list: String = "list"
+    ): Single<IngredientResponse>
 
     @GET("filter.php")
     fun getMealsByCategory(
@@ -47,12 +50,4 @@ interface MealApi {
     fun getMealsByIngredient(
         @Query("i") ingredient: String
     ): Single<MealResponse>
-
-    @GET("list.php")
-    fun getAreas(): Single<AreaResponse>
-
-    @GET("list.php")
-    fun getIngredients(
-        @Query("i") list: String = "list"
-    ): Single<IngredientResponse>
 }

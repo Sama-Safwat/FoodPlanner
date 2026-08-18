@@ -38,7 +38,7 @@ class CountriesPresenter(
                 },
                 { error ->
                     view.hideLoading()
-                    view.showError(error.message ?: "Failed to load countries")
+                    view.showError("Error: ${error.message}")
                 }
             )
             .also { disposables.add(it) }

@@ -47,18 +47,44 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     private fun setupTabs() {
-        val tabTitles = listOf("Search", "Category", "Ingredient")
-        val adapter = SearchTabAdapter(tabTitles)
-        binding.viewPager.adapter = adapter
+        val tabTitles = listOf("Name", "Category", "Ingredient")
 
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = tabTitles[position]
-        }.attach()
+        binding.tabLayout.removeAllTabs()
+        tabTitles.forEach { title ->
+            binding.tabLayout.addTab(binding.tabLayout.newTab().setText(title))
+        }
+
+        binding.tabLayout.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
+                currentSearchType = when (tab?.position) {
+                    0 -> SearchType.NAME
+                    1 -> SearchType.CATEGORY
+                    else -> SearchType.INGREDIENT
+                }
+                binding.searchInput.hint = when (currentSearchType) {
+                    SearchType.NAME -> "Search by meal name..."
+                    SearchType.CATEGORY -> "Search by category..."
+                    SearchType.INGREDIENT -> "Search by ingredient..."
+                }
+                clearResults()
+                binding.searchInput.text?.clear()
+            }
+
+            override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+        })
+
+        binding.tabLayout.getTabAt(0)?.select()
+        binding.searchInput.hint = "Search by meal name..."
     }
 
     private fun setupSearchListener() {
         binding.searchButton.setOnClickListener {
             val query = binding.searchInput.text.toString().trim()
+            if (query.isEmpty()) {
+                showError("Please enter a search term")
+                return@setOnClickListener
+            }
             when (currentSearchType) {
                 SearchType.NAME -> presenter.searchByName(query)
                 SearchType.CATEGORY -> presenter.searchByCategory(query)
@@ -102,18 +128,13 @@ class SearchFragment : Fragment(), SearchContract.View {
         binding.errorContainer.visibility = View.GONE
         binding.emptyText.visibility = View.GONE
         binding.resultsRecyclerView.visibility = View.VISIBLE
-        searchResultsAdapter.submitList(meals)
+        searchResultsAdapter.submitMeals(meals)
     }
 
     override fun showCategories(categories: List<String>) {
     }
 
     override fun showIngredients(ingredients: List<String>) {
-        binding.progressBar.visibility = View.GONE
-        binding.errorContainer.visibility = View.GONE
-        binding.emptyText.visibility = View.GONE
-        binding.resultsRecyclerView.visibility = View.VISIBLE
-        searchResultsAdapter.submitList(ingredients)
     }
 
     override fun showError(message: String) {
@@ -126,7 +147,7 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     override fun clearResults() {
-        searchResultsAdapter.submitList(emptyList())
+        searchResultsAdapter.clear()
         binding.resultsRecyclerView.visibility = View.GONE
         binding.emptyText.visibility = View.VISIBLE
         binding.errorContainer.visibility = View.GONE

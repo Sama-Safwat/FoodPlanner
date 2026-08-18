@@ -30,6 +30,10 @@ class PlannerActivity : AppCompatActivity() {
     private var selectedDate = DateUtils.toIso(Date())
     private var allMeals = emptyList<PlannedMealEntity>()
 
+    private var incomingMealId: String? = null
+    private var incomingMealName: String? = null
+    private var incomingMealImage: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_planner)
@@ -38,6 +42,10 @@ class PlannerActivity : AppCompatActivity() {
         tvSelectedDate = findViewById(R.id.tvSelectedDate)
         btnAddMeal = findViewById(R.id.btnAddMeal)
         recyclerPlanner = findViewById(R.id.recyclerPlanner)
+
+        incomingMealId = intent.getStringExtra("meal_id")
+        incomingMealName = intent.getStringExtra("meal_name")
+        incomingMealImage = intent.getStringExtra("meal_image")
 
         val database = AppDatabase.getDatabase(this)
         repository = WeeklyPlanRepository(database.planDao())
@@ -76,7 +84,25 @@ class PlannerActivity : AppCompatActivity() {
         }
 
         btnAddMeal.setOnClickListener {
-            addTestMeal()
+            if (incomingMealId != null && incomingMealName != null){
+                addMealToPlan(incomingMealId!!, incomingMealName!!, incomingMealImage!!)
+                incomingMealId = null
+                incomingMealName = null
+                incomingMealImage = null
+            }else{
+                Toast.makeText(
+                    this,
+                    "No meal selected. please go back and choose meal first.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+        if (incomingMealId != null && incomingMealName != null){
+            Toast.makeText(
+                this,
+                "Add '${incomingMealName}' to plan? Press 'Add Meal' ",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -95,22 +121,26 @@ class PlannerActivity : AppCompatActivity() {
         adapter.submitList(selectedMeals)
     }
 
-    private fun addTestMeal() {
-        val testMeal = PlannedMealEntity(
+    private fun addMealToPlan(mealId: String, mealName: String, mealImageUrl: String?){
+        val meal = PlannedMealEntity(
             date = selectedDate,
-            mealId = "test_${System.currentTimeMillis()}",
-            mealName = "Chicken Curry",
-            mealImageUrl = "https://www.themealdb.com/images/media/meals/wyxwsp1486979827.jpg"
+            mealId = mealId,
+            mealName = mealName,
+            mealImageUrl = mealImageUrl ?: "https://www.themealdb.com/images/media/meals/placeholder.jpg"
         )
-
         lifecycleScope.launch {
-            repository.addMealToPlan(testMeal)
+            repository.addMealToPlan(meal)
             Toast.makeText(
                 this@PlannerActivity,
-                "Meal added to ${DateUtils.toDisplay(selectedDate)}",
+                "'${mealName}' added to ${DateUtils.toDisplay(selectedDate)}",
                 Toast.LENGTH_SHORT
             ).show()
+
+            incomingMealId = null
+            incomingMealName = null
+            incomingMealImage = null
         }
     }
+
 
 }

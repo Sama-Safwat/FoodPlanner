@@ -1,5 +1,6 @@
 package com.example.foodplanner.ui.details
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.data.repository.MealRepository
 import com.example.foodplanner.databinding.FragmentMealDetailsBinding
+import com.example.foodplanner.ui.planner.PlannerActivity
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -24,6 +26,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
     private lateinit var presenter: MealDetailsContract.Presenter
     private lateinit var ingredientsAdapter: IngredientsAdapter
     private var mealId: String = ""
+    private var currentMeal: Meal? = null
 
     companion object {
         private const val ARG_MEAL_ID = "meal_id"
@@ -81,6 +84,18 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         binding.backButton.setOnClickListener {
             presenter.onBackPressed()
         }
+
+        binding.addToPlanButton.setOnClickListener{
+            currentMeal?.let{ meal ->
+                val intent = Intent(requireContext(), PlannerActivity::class.java)
+                intent.putExtra("meal_id", meal.idMeal)
+                intent.putExtra("meal_name", meal.strMeal)
+                intent.putExtra("meal_image", meal.strMealThumb)
+                startActivity(intent)
+            } ?: run{
+                showError("No meal to add to plan!")
+            }
+        }
     }
 
     override fun showLoading() {
@@ -94,6 +109,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
     }
 
     override fun showMealDetails(meal: Meal) {
+        currentMeal = meal
         binding.contentLayout.visibility = View.VISIBLE
         binding.errorText.visibility = View.GONE
 

@@ -113,17 +113,23 @@ class SearchPresenter(
     }
 
     override fun loadIngredients() {
+        view.showLoading()
         repository.getIngredients()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { response ->
+                    view.hideLoading()
                     val ingredients = response.meals?.mapNotNull { it.strIngredient } ?: emptyList()
-                    view.showIngredients(ingredients)
+                    if (ingredients.isNotEmpty()) {
+                        view.showIngredients(ingredients)
+                    } else {
+                        view.showError("No ingredients found from API")
+                    }
                 },
                 { error ->
                     view.hideLoading()
-                    view.showError("Could not load ingredients. Please check your connection.")
+                    view.showError("Could not load ingredients. Please check your internet connection.")
                 }
             )
             .also { disposables.add(it) }

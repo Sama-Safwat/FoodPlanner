@@ -12,10 +12,28 @@ class SearchResultsAdapter(
     private val onMealClick: (String) -> Unit
 ) : RecyclerView.Adapter<SearchResultsAdapter.MealViewHolder>() {
 
-    private var items: List<Any> = emptyList()
+    private var meals: List<Meal> = emptyList()
+    private var ingredients: List<String> = emptyList()
+    private var isIngredientsMode = false
 
-    fun submitList(list: List<Any>) {
-        items = list
+    fun submitMeals(list: List<Meal>) {
+        meals = list
+        ingredients = emptyList()
+        isIngredientsMode = false
+        notifyDataSetChanged()
+    }
+
+    fun submitIngredients(list: List<String>) {
+        ingredients = list
+        meals = emptyList()
+        isIngredientsMode = true
+        notifyDataSetChanged()
+    }
+
+    fun clear() {
+        meals = emptyList()
+        ingredients = emptyList()
+        isIngredientsMode = false
         notifyDataSetChanged()
     }
 
@@ -27,14 +45,16 @@ class SearchResultsAdapter(
     }
 
     override fun onBindViewHolder(holder: MealViewHolder, position: Int) {
-        val item = items[position]
-        when (item) {
-            is Meal -> holder.bindMeal(item)
-            is String -> holder.bindIngredient(item)
+        if (isIngredientsMode) {
+            holder.bindIngredient(ingredients[position])
+        } else {
+            holder.bindMeal(meals[position])
         }
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int {
+        return if (isIngredientsMode) ingredients.size else meals.size
+    }
 
     inner class MealViewHolder(
         private val binding: ItemMealBinding
@@ -58,7 +78,6 @@ class SearchResultsAdapter(
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(binding.mealImage)
             binding.root.setOnClickListener {
-
             }
         }
     }

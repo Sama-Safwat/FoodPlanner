@@ -91,6 +91,16 @@
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/addToPlanButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="Add to Plan"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:backgroundTint="@color/success" />
+
             <LinearLayout
                 android:id="@+id/ingredientsSection"
                 android:layout_width="match_parent"

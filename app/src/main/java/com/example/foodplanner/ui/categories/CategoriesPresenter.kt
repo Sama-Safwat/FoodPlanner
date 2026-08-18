@@ -39,7 +39,7 @@ class CategoriesPresenter(
                 },
                 { error ->
                     view.hideLoading()
-                    view.showError(error.message ?: "Failed to load categories")
+                    view.showError("Error: ${error.message}")
                 }
             )
             .also { disposables.add(it) }
