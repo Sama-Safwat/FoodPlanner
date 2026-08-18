@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background"
+    android:padding="@dimen/spacing_md">
+
+    <TextView
+        android:id="@+id/tvPlannerTitle"
+        style="@style/FoodPlannerTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Week Plan:"
+        android:textSize="@dimen/text_heading"
+        android:layout_marginBottom="@dimen/spacing_md" />
+
+    <CalendarView
+        android:id="@+id/calendarPlanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_md"
+        android:background="@color/surface_variant" />
+
+    <TextView
+        android:id="@+id/tvSelectedDate"
+        style="@style/FoodPlannerTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Meals"
+        android:textSize="@dimen/text_medium"
+        android:layout_marginBottom="@dimen/spacing_sm" />
+
+    <Button
+        android:id="@+id/btnAddMeal"
+        style="@style/FoodPlannerButton"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:text="Add Meal"
+        android:textAllCaps="false"
+        android:layout_marginBottom="@dimen/spacing_md" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerPlanner"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/spacing_md" />
+
+</LinearLayout>

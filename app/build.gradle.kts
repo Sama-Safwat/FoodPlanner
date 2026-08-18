@@ -76,5 +76,6 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.5.2")
     implementation("com.google.android.gms:play-services-measurement-sdk-api:23.2.0")
     implementation("com.airbnb.android:lottie:6.7.1")
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
 
 }

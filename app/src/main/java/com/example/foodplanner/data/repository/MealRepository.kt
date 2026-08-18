@@ -1,57 +1,46 @@
 package com.example.foodplanner.data.repository
 
-import com.example.foodplanner.data.api.ApiService
+import com.example.foodplanner.data.api.MealApi
 import com.example.foodplanner.data.local.MealDao
 import com.example.foodplanner.data.local.MealEntity
-import com.example.foodplanner.data.model.Meal
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 class MealRepository(
-    private val apiService: ApiService,
+    private val mealApi: MealApi,
     private val mealDao: MealDao
 ) {
 
-    // ---------- Remote ----------
+    fun getRandomMeal() = mealApi.getRandomMeal()
+    fun getMealDetails(id: String) = mealApi.getMealDetails(id)
+    fun searchMealsByName(name: String) = mealApi.searchMealByName(name)
+    fun getCategories() = mealApi.getCategories()
+    fun getMealsByCategory(category: String) = mealApi.getMealsByCategory(category)
+    fun getMealsByIngredient(ingredient: String) = mealApi.getMealsByIngredient(ingredient)
+    fun getMealsByArea(area: String) = mealApi.getMealsByArea(area)
+    fun getAreas() = mealApi.getAreas()
 
-    suspend fun searchMeals(name: String) =
-        apiService.searchMeals(name)
-
-    suspend fun getMealsByFirstLetter(letter: String) =
-        apiService.getMealsByFirstLetter(letter)
-
-    suspend fun getMealDetails(id: String) =
-        apiService.getMealDetails(id)
-
-    suspend fun getRandomMeal() =
-        apiService.getRandomMeal()
-
-    suspend fun getCategories() =
-        apiService.getCategories()
-
-    suspend fun getMealsByCategory(category: String) =
-        apiService.getMealsByCategory(category)
-
-    suspend fun getMealsByIngredient(ingredient: String) =
-        apiService.getMealsByIngredient(ingredient)
-
-    suspend fun getMealsByArea(area: String) =
-        apiService.getMealsByArea(area)
-
-
-    // ---------- Local ----------
-
-    suspend fun addFavorite(meal: MealEntity) {
-        mealDao.insertMeal(meal)
+    fun isMealFavorite(mealId: String): Single<Boolean> {
+        return Single.fromCallable {
+            mealDao.getMealById(mealId) != null
+        }
     }
 
-    suspend fun removeFavorite(meal: MealEntity) {
-        mealDao.deleteMeal(meal)
+    fun addFavorite(mealEntity: MealEntity): Completable {
+        return Completable.fromAction {
+            mealDao.insertMeal(mealEntity)
+        }
     }
 
-    suspend fun getFavorites(): List<MealEntity> {
-        return mealDao.getAllMeals()
+    fun removeFavorite(mealId: String): Completable {
+        return Completable.fromAction {
+            mealDao.deleteMealById(mealId)
+        }
     }
 
-    suspend fun getFavoriteById(id: String): MealEntity? {
-        return mealDao.getMealById(id)
+    fun getFavorites(): Single<List<MealEntity>> {
+        return Single.fromCallable {
+            mealDao.getAllMeals()
+        }
     }
 }

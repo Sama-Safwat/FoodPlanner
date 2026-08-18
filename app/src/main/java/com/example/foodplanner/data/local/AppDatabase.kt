@@ -7,14 +7,15 @@ import androidx.room.RoomDatabase
 import com.example.foodplanner.utils.Constants
 
 @Database(
-    entities = [MealEntity::class],
-    version = 1,
+    entities = [MealEntity::class, PlannedMealEntity::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun mealDao(): MealDao
-
+    abstract fun favoritesDao(): FavoritesDao
+    abstract fun planDao(): PlanDao
     companion object {
 
         @Volatile
@@ -26,7 +27,8 @@ abstract class AppDatabase : RoomDatabase() {
 
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
-                    AppDatabase::class.java, Constants.DATABASE_NAME).build()
+                    AppDatabase::class.java, Constants.DATABASE_NAME)
+                    .build()
 
                 INSTANCE = instance
                 instance

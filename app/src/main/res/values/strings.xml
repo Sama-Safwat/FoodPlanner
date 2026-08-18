@@ -24,6 +24,8 @@
     <string name="favorite_meal">Add meal to favorites</string>
     <string name="remove_favorite">Remove meal from favorites</string>
     <string name="back">Back</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="weekly_planner">Weekly Planner</string>
+    <string name="choose_day">Choose a day</string>
+    <string name="meal_added">Meal added to %1$s</string>
+    <string name="meal_removed">Meal removed</string>
 </resources>

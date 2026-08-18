@@ -5,22 +5,20 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface MealDao {
+interface FavoritesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMeal(meal: MealEntity)
+    suspend fun insertFavorite(meal: MealEntity)
 
     @Delete
-    fun deleteMeal(meal: MealEntity)
-
-    @Query("DELETE FROM meals WHERE idMeal = :mealId")
-    fun deleteMealById(mealId: String)
+    suspend fun deleteFavorite(meal: MealEntity)
 
     @Query("SELECT * FROM meals")
-    fun getAllMeals(): List<MealEntity>
+    fun getAllFavorites(): Flow<List<MealEntity>>
 
     @Query("SELECT * FROM meals WHERE idMeal = :mealId")
-    fun getMealById(mealId: String): MealEntity?
+    suspend fun getFavoriteById(mealId: String): MealEntity?
 }
