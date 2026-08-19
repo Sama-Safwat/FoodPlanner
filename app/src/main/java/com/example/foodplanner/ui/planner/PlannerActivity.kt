@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.foodplanner.R
 import com.example.foodplanner.data.local.AppDatabase
 import com.example.foodplanner.data.local.PlannedMealEntity
+import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.data.repository.WeeklyPlanRepository
 import com.example.foodplanner.utils.DateUtils
 import kotlinx.coroutines.launch
@@ -36,6 +37,13 @@ class PlannerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val userPrefs = UserPreferences(this)
+        if (userPrefs.isGuest()) {
+            Toast.makeText(this, "Please log in to use this feature", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
         setContentView(R.layout.activity_planner)
 
         calendarPlanner = findViewById(R.id.calendarPlanner)

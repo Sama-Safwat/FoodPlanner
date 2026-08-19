@@ -6,10 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.foodplanner.R
 import com.example.foodplanner.data.api.RetrofitInstance
-import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.data.model.Meal
+import com.example.foodplanner.data.repository.MealRemoteRepository
+import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentHomeBinding
+import com.example.foodplanner.ui.auth.LoginFragment
+import com.google.firebase.auth.FirebaseAuth
 
 class HomeFragment : Fragment(), MealContract.View {
 
@@ -29,7 +33,10 @@ class HomeFragment : Fragment(), MealContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        activity?.findViewById<View>(R.id.navContainer)?.visibility = View.VISIBLE
+        binding.btnLogout.setOnClickListener {
+            logout()
+        }
         val repository = MealRemoteRepository(RetrofitInstance.api)
 
         presenter = MealPresenter(
@@ -73,5 +80,13 @@ class HomeFragment : Fragment(), MealContract.View {
         presenter.stop()
         _binding = null
         super.onDestroyView()
+    }
+
+    fun logout() {
+        FirebaseAuth.getInstance().signOut()
+        UserPreferences(requireContext()).clearSession()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, LoginFragment())
+            .commit()
     }
 }

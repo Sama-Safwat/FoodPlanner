@@ -5,46 +5,56 @@ import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.foodplanner.R
+import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentLoginBinding
-import com.google.firebase.auth.FirebaseAuth
+import com.example.foodplanner.ui.home.HomeFragment
 
-class LoginFragment : Fragment(R.layout.fragment_login) {
+class LoginFragment : Fragment(R.layout.fragment_login), AuthContract.View {
 
-    private lateinit var auth: FirebaseAuth
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var presenter: AuthContract.Presenter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.findViewById<View>(R.id.navContainer)?.visibility = View.GONE
+        _binding = FragmentLoginBinding.bind(view)
+        presenter = AuthPresenter(this, UserPreferences(requireContext()))
 
-        auth = FirebaseAuth.getInstance()
-        val binding = FragmentLoginBinding.bind(view)
-
-        // Navigate to RegisterFragment when clicking Sign Up
         binding.tvRegister.setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, RegisterFragment())
-                .addToBackStack(null) // Allows the user to press the Back button to return to Login
+                .replace(R.id.fragmentContainer, RegisterFragment())
+                .addToBackStack(null)
                 .commit()
         }
 
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
-
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(requireContext(), "Fill all fields", Toast.LENGTH_SHORT).show()
+            val pass = binding.etPassword.text.toString().trim()
+            if (email.isEmpty() || pass.isEmpty()) {
+                showError("Fill all fields")
                 return@setOnClickListener
             }
-
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, HomeFragment())
-                            .commit()
-                    } else {
-                        Toast.makeText(requireContext(), "Invalid credentials: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                    }
-                }
+            presenter.login(email, pass)
         }
+
+        binding.btnGuest.setOnClickListener {
+            presenter.loginAsGuest()
+        }
+    }
+
+    override fun showLoading() { binding.progressBar.visibility = View.VISIBLE }
+    override fun hideLoading() { binding.progressBar.visibility = View.GONE }
+    override fun showError(message: String) = Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+
+    override fun onSuccess() {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, HomeFragment())
+            .commit()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

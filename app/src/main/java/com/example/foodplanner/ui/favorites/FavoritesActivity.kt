@@ -7,10 +7,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.foodplanner.data.local.AppDatabase
 import com.example.foodplanner.data.repository.FavoritesRepository
+import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.ActivityFavoritesBinding
 import com.example.foodplanner.ui.details.MealDetailsFragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import android.widget.Toast
 
 class FavoritesActivity : AppCompatActivity() {
 
@@ -35,6 +37,14 @@ class FavoritesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val userPrefs = UserPreferences(this)
+        if (userPrefs.isGuest()) {
+            Toast.makeText(this, "Please log in to use this feature", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
         binding = ActivityFavoritesBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)

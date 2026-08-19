@@ -12,8 +12,10 @@ import com.example.foodplanner.data.local.AppDatabase
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.data.repository.MealRepository
+import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentMealDetailsBinding
 import com.example.foodplanner.ui.planner.PlannerActivity
+import com.example.foodplanner.utils.AuthGuard
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
@@ -25,6 +27,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     private lateinit var presenter: MealDetailsContract.Presenter
     private lateinit var ingredientsAdapter: IngredientsAdapter
+    private lateinit var userPrefs: UserPreferences
     private var mealId: String = ""
     private var currentMeal: Meal? = null
 
@@ -56,6 +59,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
+            userPrefs = UserPreferences(requireContext())
             setupRecyclerView()
             setupListeners()
             val remoteRepository = MealRemoteRepository(RetrofitInstance.api)
@@ -78,7 +82,9 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     private fun setupListeners() {
         binding.favoriteButton.setOnClickListener {
-            presenter.toggleFavorite()
+            AuthGuard.requireLogin(this, userPrefs) {
+                presenter.toggleFavorite()
+            }
         }
 
         binding.backButton.setOnClickListener {
@@ -86,14 +92,16 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         }
 
         binding.addToPlanButton.setOnClickListener{
-            currentMeal?.let{ meal ->
-                val intent = Intent(requireContext(), PlannerActivity::class.java)
-                intent.putExtra("meal_id", meal.idMeal)
-                intent.putExtra("meal_name", meal.strMeal)
-                intent.putExtra("meal_image", meal.strMealThumb)
-                startActivity(intent)
-            } ?: run{
-                showError("No meal to add to plan!")
+            AuthGuard.requireLogin(this, userPrefs) {
+                currentMeal?.let { meal ->
+                    val intent = Intent(requireContext(), PlannerActivity::class.java)
+                    intent.putExtra("meal_id", meal.idMeal)
+                    intent.putExtra("meal_name", meal.strMeal)
+                    intent.putExtra("meal_image", meal.strMealThumb)
+                    startActivity(intent)
+                } ?: run {
+                    showError("No meal to add to plan!")
+                }
             }
         }
     }

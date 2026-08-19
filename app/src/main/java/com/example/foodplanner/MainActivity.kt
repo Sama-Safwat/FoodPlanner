@@ -2,11 +2,13 @@ package com.example.foodplanner
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
-import androidx.activity.enableEdgeToEdge
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import com.example.foodplanner.data.repository.UserPreferences
+import com.example.foodplanner.ui.auth.SplashFragment
 import com.example.foodplanner.ui.categories.CategoriesFragment
 import com.example.foodplanner.ui.countries.CountriesFragment
 import com.example.foodplanner.ui.details.MealDetailsFragment
@@ -14,6 +16,7 @@ import com.example.foodplanner.ui.favorites.FavoritesActivity
 import com.example.foodplanner.ui.home.HomeFragment
 import com.example.foodplanner.ui.planner.PlannerActivity
 import com.example.foodplanner.ui.search.SearchFragment
+import com.example.foodplanner.utils.AuthGuard
 
 // MainActivity.kt
 
@@ -22,6 +25,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val navContainer = findViewById<HorizontalScrollView>(R.id.navContainer)
+        navContainer?.visibility = View.GONE
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, SplashFragment())
+                .commit()
+        }
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (currentFragment is HomeFragment) {
+                navContainer?.visibility = View.VISIBLE
+            } else {
+                navContainer?.visibility = View.GONE
+            }
+        }
 
         // أزرار للـ Testing
         val btnHome = findViewById<Button>(R.id.btnHome)
@@ -62,12 +82,31 @@ class MainActivity : AppCompatActivity() {
                 .commit()
         }
 
-        btnFavorites.setOnClickListener {
-            startActivity(Intent(this, FavoritesActivity::class.java))
+        val userPrefs = UserPreferences(this)
+        btnFavorites?.setOnClickListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (currentFragment != null) {
+                AuthGuard.requireLogin(currentFragment, userPrefs) {
+                    startActivity(Intent(this, FavoritesActivity::class.java))
+                }
+            } else {
+                if (!userPrefs.isGuest()) {
+                    startActivity(Intent(this, FavoritesActivity::class.java))
+                }
+            }
         }
 
-        btnPlanner.setOnClickListener {
-            startActivity(Intent(this, PlannerActivity::class.java))
+        btnPlanner?.setOnClickListener {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (currentFragment != null) {
+                AuthGuard.requireLogin(currentFragment, userPrefs) {
+                    startActivity(Intent(this, PlannerActivity::class.java))
+                }
+            } else {
+                if (!userPrefs.isGuest()) {
+                    startActivity(Intent(this, PlannerActivity::class.java))
+                }
+            }
         }
     }
 }
