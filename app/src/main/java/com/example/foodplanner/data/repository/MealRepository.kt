@@ -20,11 +20,13 @@ class MealRepository(
     fun getMealsByArea(area: String) = mealApi.getMealsByArea(area)
     fun getAreas() = mealApi.getAreas()
 
-    fun isMealFavorite(mealId: String): Single<Boolean> {
+    // add userId as a parameter
+    fun isMealFavorite(userId: String, mealId: String): Single<Boolean> {
         return Single.fromCallable {
-            mealDao.getMealById(mealId) != null
+            mealDao.getMealByIdSync(userId, mealId) != null
         }
     }
+
 
     fun addFavorite(mealEntity: MealEntity): Completable {
         return Completable.fromAction {
@@ -32,15 +34,17 @@ class MealRepository(
         }
     }
 
-    fun removeFavorite(mealId: String): Completable {
+    // add userID as a parameter
+    fun removeFavorite(userId: String, mealId: String): Completable {
         return Completable.fromAction {
-            mealDao.deleteMealById(mealId)
+            mealDao.deleteMealById(userId, mealId)
         }
     }
 
-    fun getFavorites(): Single<List<MealEntity>> {
+    // add userId as a parameter
+    fun getFavorites(userId: String): Single<List<MealEntity>> {
         return Single.fromCallable {
-            mealDao.getAllMeals()
+            mealDao.getAllMealsForUser(userId)
         }
     }
 }

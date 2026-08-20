@@ -17,7 +17,9 @@ import com.example.foodplanner.ui.home.HomeFragment
 import com.example.foodplanner.ui.planner.PlannerActivity
 import com.example.foodplanner.ui.search.SearchFragment
 import com.example.foodplanner.utils.AuthGuard
-
+//add recently
+import com.example.foodplanner.ui.auth.AuthActivity
+import com.example.foodplanner.utils.UserProvider
 // MainActivity.kt
 
 class MainActivity : AppCompatActivity() {
@@ -51,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         val btnDetails = findViewById<Button>(R.id.btnDetails)
         val btnFavorites = findViewById<Button>(R.id.btnFavorites)
         val btnPlanner = findViewById<Button>(R.id.btnPlanner)
-
+        val btnLogout = findViewById<Button>(R.id.btnLogout) //add recently
         btnHome.setOnClickListener {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, HomeFragment())
@@ -107,6 +109,12 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, PlannerActivity::class.java))
                 }
             }
+        }
+        //add recently
+        btnLogout?.setOnClickListener {
+            UserProvider.logout()
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
         }
     }
 }

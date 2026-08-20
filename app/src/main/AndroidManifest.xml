@@ -33,6 +33,9 @@
         <meta-data
             android:name="com.google.android.youtube.player.API_KEY"
             android:value="AIzaSyCq3tDk0fIxKc3K5L0mN6qJ8rS9tU2vWxY" />
+        <activity
+            android:name=".ui.auth.AuthActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

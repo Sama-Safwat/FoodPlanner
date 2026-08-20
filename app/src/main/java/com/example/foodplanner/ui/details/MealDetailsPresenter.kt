@@ -7,6 +7,7 @@ import com.example.foodplanner.data.repository.MealRepository
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import com.example.foodplanner.utils.UserProvider
 
 class MealDetailsPresenter(
     private val view: MealDetailsContract.View,
@@ -59,7 +60,8 @@ class MealDetailsPresenter(
     }
 
     private fun checkFavoriteStatus(mealId: String) {
-        localRepository.isMealFavorite(mealId)
+        // ✅ ضيفنا userId للـ repository
+        localRepository.isMealFavorite(UserProvider.getCurrentUserId(), mealId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
@@ -84,6 +86,7 @@ class MealDetailsPresenter(
         if (isFavorite) {
             currentMeal?.let { meal ->
                 val mealEntity = MealEntity(
+                    userId = UserProvider.getCurrentUserId(),   // ✅ الجديد
                     idMeal = meal.idMeal ?: "",
                     strMeal = meal.strMeal,
                     strCategory = meal.strCategory,
@@ -109,7 +112,8 @@ class MealDetailsPresenter(
         } else {
             currentMeal?.let { meal ->
                 meal.idMeal?.let { id ->
-                    localRepository.removeFavorite(id)
+                    // ✅ ضيفنا userId
+                    localRepository.removeFavorite(UserProvider.getCurrentUserId(), id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

@@ -131,6 +131,7 @@ class PlannerActivity : AppCompatActivity() {
 
     private fun addMealToPlan(mealId: String, mealName: String, mealImageUrl: String?){
         val meal = PlannedMealEntity(
+            userId = "",
             date = selectedDate,
             mealId = mealId,
             mealName = mealName,
