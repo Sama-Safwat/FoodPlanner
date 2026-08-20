@@ -4,19 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.foodplanner.R
 import com.example.foodplanner.data.api.RetrofitInstance
 import com.example.foodplanner.data.model.Category
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.databinding.FragmentCategoriesBinding
+import com.example.foodplanner.ui.details.MealDetailsFragment
 
 class CategoriesFragment : Fragment(), CategoriesContract.View {
 
     private var _binding: FragmentCategoriesBinding? = null
     private val binding get() = _binding!!
-
+    private var isShowingMeals = false
     private lateinit var presenter: CategoriesContract.Presenter
     private lateinit var categoriesAdapter: CategoriesAdapter
     private lateinit var mealsAdapter: CategoryMealsAdapter
@@ -34,6 +37,7 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerViews()
+        setupListeners()
 
         val repository = MealRemoteRepository(RetrofitInstance.api)
         presenter = CategoriesPresenter(this, repository)
@@ -58,6 +62,28 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (isShowingMeals){
+            binding.btnBackToCategories.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupListeners() {
+        binding.btnBackToCategories.setOnClickListener {
+            showCategoriesGrid()
+        }
+    }
+
+    private fun showCategoriesGrid() {
+        isShowingMeals = false
+        binding.categoriesRecyclerView.visibility = View.VISIBLE
+        binding.mealsRecyclerView.visibility = View.GONE
+        binding.categoryTitle.visibility = View.GONE
+        binding.btnBackToCategories.visibility = View.GONE
+        presenter.loadCategories()
+    }
+
     override fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
         binding.errorText.visibility = View.GONE
@@ -72,13 +98,18 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
         binding.categoriesRecyclerView.visibility = View.VISIBLE
         binding.mealsRecyclerView.visibility = View.GONE
         binding.categoryTitle.visibility = View.GONE
+        binding.btnBackToCategories.visibility = View.GONE
+        isShowingMeals = false
     }
 
     override fun showCategoryMeals(meals: List<Meal>) {
         mealsAdapter.submitList(meals)
+        binding.categoriesRecyclerView.visibility = View.GONE
         binding.mealsRecyclerView.visibility = View.VISIBLE
         binding.categoryTitle.visibility = View.VISIBLE
         binding.categoryTitle.text = "Meals in this category"
+        binding.btnBackToCategories.visibility = View.VISIBLE
+        isShowingMeals = true
     }
 
     override fun showError(message: String) {
@@ -88,12 +119,21 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
     }
 
     override fun navigateToMealDetails(mealId: String) {
-
+        val fragment = MealDetailsFragment.newInstance(mealId)
+        parentFragmentManager.beginTransaction()
+            .hide(this)
+            .add(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onDestroyView() {
         presenter.stop()
         _binding = null
         super.onDestroyView()
+    }
+
+    override fun showToast(message: String){
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

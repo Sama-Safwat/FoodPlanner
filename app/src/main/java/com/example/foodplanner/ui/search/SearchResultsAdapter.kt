@@ -5,11 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.foodplanner.R
+import com.example.foodplanner.data.model.Ingredient
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.databinding.ItemMealBinding
 
 class SearchResultsAdapter(
-    private val onMealClick: (String) -> Unit
+    private val onMealClick: (String) -> Unit,
+    private val onIngredientClick: ((String) -> Unit)? = null
 ) : RecyclerView.Adapter<SearchResultsAdapter.MealViewHolder>() {
 
     private var meals: List<Meal> = emptyList()
@@ -78,7 +80,8 @@ class SearchResultsAdapter(
                 .placeholder(R.drawable.ic_launcher_foreground)
                 .into(binding.mealImage)
             binding.root.setOnClickListener {
+                onIngredientClick?.invoke(ingredient)
+                }
             }
         }
     }
-}

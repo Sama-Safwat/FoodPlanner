@@ -4,13 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.foodplanner.R
 import com.example.foodplanner.data.api.RetrofitInstance
 import com.example.foodplanner.data.model.Area
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.databinding.FragmentCountriesBinding
+import com.example.foodplanner.ui.details.MealDetailsFragment
 
 class CountriesFragment : Fragment(), CountriesContract.View {
 
@@ -20,6 +23,7 @@ class CountriesFragment : Fragment(), CountriesContract.View {
     private lateinit var presenter: CountriesContract.Presenter
     private lateinit var countriesAdapter: CountriesAdapter
     private lateinit var mealsAdapter: CountryMealsAdapter
+    private var isShowingMeals = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,10 +38,18 @@ class CountriesFragment : Fragment(), CountriesContract.View {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerViews()
+        setupListeners()
 
         val repository = MealRemoteRepository(RetrofitInstance.api)
         presenter = CountriesPresenter(this, repository)
         presenter.start()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isShowingMeals) {
+            binding.btnBackToCountries.visibility = View.VISIBLE
+        }
     }
 
     private fun setupRecyclerViews() {
@@ -58,6 +70,21 @@ class CountriesFragment : Fragment(), CountriesContract.View {
         }
     }
 
+    private fun setupListeners() {
+        binding.btnBackToCountries.setOnClickListener {
+            showCountriesGrid()
+        }
+    }
+
+    private fun showCountriesGrid() {
+        isShowingMeals = false
+        binding.countriesRecyclerView.visibility = View.VISIBLE
+        binding.mealsRecyclerView.visibility = View.GONE
+        binding.countryTitle.visibility = View.GONE
+        binding.btnBackToCountries.visibility = View.GONE
+        presenter.loadCountries()
+    }
+
     override fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
         binding.errorText.visibility = View.GONE
@@ -72,13 +99,18 @@ class CountriesFragment : Fragment(), CountriesContract.View {
         binding.countriesRecyclerView.visibility = View.VISIBLE
         binding.mealsRecyclerView.visibility = View.GONE
         binding.countryTitle.visibility = View.GONE
+        binding.btnBackToCountries.visibility = View.GONE
+        isShowingMeals = false
     }
 
     override fun showCountryMeals(meals: List<Meal>) {
         mealsAdapter.submitList(meals)
+        binding.countriesRecyclerView.visibility = View.GONE
         binding.mealsRecyclerView.visibility = View.VISIBLE
         binding.countryTitle.visibility = View.VISIBLE
         binding.countryTitle.text = "Meals from this country"
+        binding.btnBackToCountries.visibility = View.VISIBLE
+        isShowingMeals = true
     }
 
     override fun showError(message: String) {
@@ -88,12 +120,21 @@ class CountriesFragment : Fragment(), CountriesContract.View {
     }
 
     override fun navigateToMealDetails(mealId: String) {
-
+        val fragment = MealDetailsFragment.newInstance(mealId)
+        parentFragmentManager.beginTransaction()
+            .hide(this)
+            .add(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onDestroyView() {
         presenter.stop()
         _binding = null
         super.onDestroyView()
+    }
+
+     override fun showToast(message: String){
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

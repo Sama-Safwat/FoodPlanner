@@ -11,6 +11,8 @@ interface CategoriesContract {
         fun showCategories(categories: List<Category>)
         fun showCategoryMeals(meals: List<Meal>)
         fun navigateToMealDetails(mealId: String)
+        fun showToast(message: String)
+
     }
 
     interface Presenter : BasePresenter {

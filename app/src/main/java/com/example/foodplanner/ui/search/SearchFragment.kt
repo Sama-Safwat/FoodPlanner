@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.R
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.foodplanner.data.api.RetrofitInstance
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.databinding.FragmentSearchBinding
+import com.example.foodplanner.ui.details.MealDetailsFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
 class SearchFragment : Fragment(), SearchContract.View {
@@ -81,10 +83,6 @@ class SearchFragment : Fragment(), SearchContract.View {
     private fun setupSearchListener() {
         binding.searchButton.setOnClickListener {
             val query = binding.searchInput.text.toString().trim()
-            if (query.isEmpty()) {
-                showError("Please enter a search term")
-                return@setOnClickListener
-            }
             when (currentSearchType) {
                 SearchType.NAME -> presenter.searchByName(query)
                 SearchType.CATEGORY -> presenter.searchByCategory(query)
@@ -103,9 +101,13 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     private fun setupRecyclerView() {
-        searchResultsAdapter = SearchResultsAdapter { mealId ->
+        searchResultsAdapter = SearchResultsAdapter(onMealClick =  { mealId ->
             presenter.onMealClicked(mealId)
+        }, onIngredientClick = { ingredient ->
+            binding.searchInput.setText(ingredient)
+            presenter.searchByIngredient(ingredient)
         }
+        )
         binding.resultsRecyclerView.apply {
             layoutManager = GridLayoutManager(context, 2)
             adapter = searchResultsAdapter
@@ -154,6 +156,12 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     override fun navigateToMealDetails(mealId: String) {
+        val fragment = MealDetailsFragment.newInstance(mealId)
+        parentFragmentManager.beginTransaction()
+            .hide(this)
+            .add(android.R.id.content, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onDestroyView() {

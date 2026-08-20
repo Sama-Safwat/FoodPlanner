@@ -1,6 +1,5 @@
 package com.example.foodplanner.ui.categories
 
-import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -58,12 +57,12 @@ class CategoriesPresenter(
                     if (meals.isNotEmpty()) {
                         view.showCategoryMeals(meals)
                     } else {
-                        view.showError("No meals found in this category")
+                        view.showToast("No meals found in this category")
                     }
                 },
                 { error ->
                     view.hideLoading()
-                    view.showError(error.message ?: "Failed to load meals")
+                    view.showToast("Error: ${error.message}")
                 }
             )
             .also { disposables.add(it) }

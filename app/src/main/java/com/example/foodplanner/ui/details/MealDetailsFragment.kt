@@ -2,9 +2,13 @@ package com.example.foodplanner.ui.details
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.foodplanner.data.api.RetrofitInstance
@@ -16,9 +20,6 @@ import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentMealDetailsBinding
 import com.example.foodplanner.ui.planner.PlannerActivity
 import com.example.foodplanner.utils.AuthGuard
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
@@ -58,24 +59,25 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-            userPrefs = UserPreferences(requireContext())
-            setupRecyclerView()
-            setupListeners()
-            val remoteRepository = MealRemoteRepository(RetrofitInstance.api)
-            val database = AppDatabase.getDatabase(requireContext())
-            val localRepository = MealRepository(RetrofitInstance.api, database.mealDao())
-            presenter = MealDetailsPresenter(this, remoteRepository, localRepository)
-            if (mealId.isNotEmpty()) {
-                presenter.loadMealDetails(mealId)
-            } else {
-                showError("No meal ID provided")
-            }
+        super.onViewCreated(view, savedInstanceState)
+        userPrefs = UserPreferences(requireContext())
+        setupRecyclerView()
+        setupListeners()
+        val remoteRepository = MealRemoteRepository(RetrofitInstance.api)
+        val database = AppDatabase.getDatabase(requireContext())
+        val localRepository = MealRepository(RetrofitInstance.api, database.mealDao())
+        presenter = MealDetailsPresenter(this, remoteRepository, localRepository)
+        if (mealId.isNotEmpty()) {
+            presenter.loadMealDetails(mealId)
+        } else {
+            showError("No meal ID provided")
         }
+    }
 
     private fun setupRecyclerView() {
         ingredientsAdapter = IngredientsAdapter()
         binding.ingredientsRecyclerView.apply {
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
             adapter = ingredientsAdapter
         }
     }
@@ -91,7 +93,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
             presenter.onBackPressed()
         }
 
-        binding.addToPlanButton.setOnClickListener{
+        binding.addToPlanButton.setOnClickListener {
             AuthGuard.requireLogin(this, userPrefs) {
                 currentMeal?.let { meal ->
                     val intent = Intent(requireContext(), PlannerActivity::class.java)
@@ -141,16 +143,42 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         }
     }
 
+    // ✅ دالة الفيديو باستخدام WebView مع HTML Embedded و baseUrl
     override fun showVideo(videoUrl: String) {
-        binding.videoContainer.visibility = View.VISIBLE
-
         val videoId = extractYouTubeId(videoUrl)
         if (videoId != null) {
-            binding.youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                override fun onReady(youTubePlayer: YouTubePlayer) {
-                    youTubePlayer.loadVideo(videoId, 0f)
-                }
-            })
+            binding.videoContainer.visibility = View.VISIBLE
+            binding.webView.visibility = View.VISIBLE
+
+            val html = """
+                <html>
+                    <body style="margin:0;padding:0;background:#000;">
+                        <iframe 
+                            style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none;"
+                            src="https://www.youtube.com/embed/$videoId?autoplay=1&mute=1"
+                            allow="autoplay; encrypted-media"
+                            referrerpolicy="strict-origin-when-cross-origin">
+                        </iframe>
+                    </body>
+                </html>
+            """.trimIndent()
+
+            binding.webView.apply {
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                settings.loadWithOverviewMode = true
+                settings.useWideViewPort = true
+                webViewClient = WebViewClient()
+                webChromeClient = WebChromeClient()
+                // تحميل HTML مع تعيين Base URL لحل مشكلة Referer
+                loadDataWithBaseURL(
+                    "https://${requireContext().packageName}/",
+                    html,
+                    "text/html",
+                    "UTF-8",
+                    null
+                )
+            }
         } else {
             binding.videoContainer.visibility = View.GONE
         }
@@ -173,29 +201,33 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
     }
 
     override fun navigateBack() {
-        requireActivity().onBackPressedDispatcher.onBackPressed()
+        parentFragmentManager.popBackStack()
     }
 
     private fun extractYouTubeId(url: String): String? {
+        Log.d("VideoDebug", "Original URL: $url")
+
         val patterns = listOf(
             "v=([a-zA-Z0-9_-]{11})",
             "youtu.be/([a-zA-Z0-9_-]{11})",
             "embed/([a-zA-Z0-9_-]{11})"
         )
-
         for (pattern in patterns) {
             val regex = Regex(pattern)
             val matchResult = regex.find(url)
             if (matchResult != null) {
-                return matchResult.groupValues[1]
+                val videoId = matchResult.groupValues[1]
+                Log.d("VideoDebug", "Extracted Video ID: $videoId")
+                return videoId
             }
         }
+        Log.d("VideoDebug", "No video ID found!")
         return null
     }
 
     override fun onDestroyView() {
         presenter.stop()
-        binding.youtubePlayerView.release()
+        // WebView لا يحتاج إلى release مثل YouTubePlayerView
         _binding = null
         super.onDestroyView()
     }

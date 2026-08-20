@@ -149,7 +149,7 @@
             <LinearLayout
                 android:id="@+id/videoContainer"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/spacing_md"
                 android:orientation="vertical"
                 android:visibility="gone">
@@ -161,11 +161,12 @@
                     android:textSize="@dimen/text_title"
                     android:textStyle="bold" />
 
-                <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
-                    android:id="@+id/youtubePlayerView"
+                <WebView
+                    android:id="@+id/webView"
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
-                    android:layout_marginTop="@dimen/spacing_sm" />
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:visibility="gone" />
 
             </LinearLayout>
 

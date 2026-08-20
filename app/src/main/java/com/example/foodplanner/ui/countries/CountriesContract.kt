@@ -1,5 +1,6 @@
 package com.example.foodplanner.ui.countries
 
+import android.os.Message
 import com.example.foodplanner.base.BasePresenter
 import com.example.foodplanner.base.BaseView
 import com.example.foodplanner.data.model.Area
@@ -11,6 +12,7 @@ interface CountriesContract {
         fun showCountries(countries: List<Area>)
         fun showCountryMeals(meals: List<Meal>)
         fun navigateToMealDetails(mealId: String)
+        fun showToast(message: String)
     }
 
     interface Presenter : BasePresenter {

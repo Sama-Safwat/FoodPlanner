@@ -13,13 +13,14 @@ import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentHomeBinding
 import com.example.foodplanner.ui.auth.LoginFragment
+import com.example.foodplanner.ui.details.MealDetailsFragment
 import com.google.firebase.auth.FirebaseAuth
 
 class HomeFragment : Fragment(), MealContract.View {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-
+    private var currentMealId: String? = null
     private lateinit var presenter: MealContract.Presenter
 
     override fun onCreateView(
@@ -37,6 +38,7 @@ class HomeFragment : Fragment(), MealContract.View {
         binding.btnLogout.setOnClickListener {
             logout()
         }
+        setupListeners()
         val repository = MealRemoteRepository(RetrofitInstance.api)
 
         presenter = MealPresenter(
@@ -60,10 +62,9 @@ class HomeFragment : Fragment(), MealContract.View {
     override fun showMeal(meal: Meal) {
         binding.mealCard.visibility = View.VISIBLE
         binding.errorText.visibility = View.GONE
-
+        currentMealId = meal.idMeal
         binding.mealName.text = meal.strMeal ?: "Unknown meal"
-        binding.mealCountry.text =
-            "Country: ${meal.strArea ?: "Unknown"}"
+        binding.mealCountry.text = "Country: ${meal.strArea ?: "Unknown"}"
 
         Glide.with(this)
             .load(meal.strMealThumb)
@@ -80,6 +81,31 @@ class HomeFragment : Fragment(), MealContract.View {
         presenter.stop()
         _binding = null
         super.onDestroyView()
+    }
+
+    private fun setupListeners(){
+        binding.mealCard.setOnClickListener {
+            currentMealId?.let { mealId ->
+                navigateToMealDetails(mealId)
+            } ?: run {
+                showError("No meal selected!")
+            }
+        }
+    }
+
+    private fun navigateToMealDetails(mealId: String){
+        try {
+            val bundle = Bundle().apply {
+                putString("meal_id", mealId)
+            }
+            val fragment = MealDetailsFragment.newInstance(mealId)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit()
+        }catch (e: Exception){
+            showError("Error opening meal details: ${e.message}")
+        }
     }
 
     fun logout() {
