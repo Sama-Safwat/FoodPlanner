@@ -83,26 +83,28 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     private fun setupSearchListener() {
-        binding.searchButton.setOnClickListener {
-            val query = binding.searchInput.text.toString().trim()
-            when (currentSearchType) {
-                SearchType.NAME -> presenter.searchByName(query)
-                SearchType.CATEGORY -> presenter.searchByCategory(query)
-                SearchType.INGREDIENT -> presenter.searchByIngredient(query)
-                SearchType.COUNTRY -> presenter.searchByCountry(query)
-            }
+        binding.searchInputLayout.setEndIconOnClickListener {
+            performSearch()
         }
-
         binding.retryButton.setOnClickListener {
-            val query = binding.searchInput.text.toString().trim()
-            when (currentSearchType) {
-                SearchType.NAME -> presenter.searchByName(query)
-                SearchType.CATEGORY -> presenter.searchByCategory(query)
-                SearchType.INGREDIENT -> presenter.searchByIngredient(query)
-                SearchType.COUNTRY -> presenter.searchByCountry(query)
-            }
+            performSearch()
         }
     }
+
+    private fun performSearch() {
+        val query = binding.searchInput.text.toString().trim()
+        if (query.isEmpty()) {
+            showError("Please enter a search term")
+            return
+        }
+        when (currentSearchType) {
+            SearchType.NAME -> presenter.searchByName(query)
+            SearchType.CATEGORY -> presenter.searchByCategory(query)
+            SearchType.INGREDIENT -> presenter.searchByIngredient(query)
+            SearchType.COUNTRY -> presenter.searchByCountry(query)
+        }
+    }
+
 
     private fun setupRecyclerView() {
         searchResultsAdapter = SearchResultsAdapter(onMealClick =  { mealId ->
