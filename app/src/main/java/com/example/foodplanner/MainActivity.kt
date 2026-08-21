@@ -8,8 +8,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.example.foodplanner.data.repository.UserPreferences
-import com.example.foodplanner.ui.auth.LoginFragment
-import com.example.foodplanner.ui.auth.SplashFragment
+import com.example.foodplanner.ui.auth.AuthActivity
 import com.example.foodplanner.ui.categories.CategoriesFragment
 import com.example.foodplanner.ui.countries.CountriesFragment
 import com.example.foodplanner.ui.favorites.FavoritesActivity
@@ -170,9 +169,15 @@ class MainActivity : AppCompatActivity() {
 
                     UserPreferences(this).clearSession()
 
-                    openFragment(LoginFragment())
+                    val intent = Intent(
+                        this,
+                        AuthActivity::class.java
+                    ).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
 
-                    bottomNavigation.selectedItemId = R.id.nav_home
+                    startActivity(intent)
                 }
             }
 
