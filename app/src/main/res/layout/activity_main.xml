@@ -1,79 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="@color/background">
 
-    <!-- 1. Main Fragment Container (Takes all available space) -->
-    <FrameLayout
-        android:id="@+id/fragmentContainer"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <!-- 2. Test Buttons Navigation Bar (Horizontal Scroll at Bottom) -->
-    <HorizontalScrollView
-        android:id="@+id/navContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#EEEEEE"
-        android:padding="8dp"
-        android:visibility="gone">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@color/surface"
+            android:elevation="4dp"
+            app:title="FoodPlanner"
+            app:titleTextColor="@color/text_primary"
+            app:navigationIcon="@drawable/ic_menu" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        <FrameLayout
+            android:id="@+id/fragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <Button
-                android:id="@+id/btnHome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Home" />
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:background="@color/surface"
+            android:elevation="8dp"
+            app:itemIconTint="@color/nav_item_colors"
+            app:itemTextColor="@color/nav_item_colors"
+            app:itemRippleColor="@color/primary"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
 
-            <Button
-                android:id="@+id/btnCategories"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Categories" />
+    </LinearLayout>
 
-            <Button
-                android:id="@+id/btnCountries"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Countries" />
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="285dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/surface"
+        app:headerLayout="@layout/drawer_header"
+        app:itemIconTint="@color/nav_item_colors"
+        app:itemTextColor="@color/nav_item_colors"
+        app:itemBackground="@drawable/drawer_item_background"
+        app:menu="@menu/drawer_menu" />
 
-            <Button
-                android:id="@+id/btnSearch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Search" />
-
-            <Button
-                android:id="@+id/btnDetails"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Details" />
-
-            <Button
-                android:id="@+id/btnFavorites"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Favorites" />
-
-            <Button
-                android:id="@+id/btnPlanner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Planner" />
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Logout" />
-
-        </LinearLayout>
-    </HorizontalScrollView>
-
-</LinearLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

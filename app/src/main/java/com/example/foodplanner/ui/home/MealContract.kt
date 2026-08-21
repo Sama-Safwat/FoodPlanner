@@ -8,9 +8,11 @@ interface MealContract {
 
     interface View : BaseView {
         fun showMeal(meal: Meal)
+        fun showMeals(meals: List<Meal>)
     }
 
     interface Presenter : BasePresenter {
         fun loadMealOfTheDay()
+        fun loadMeals()
     }
 }

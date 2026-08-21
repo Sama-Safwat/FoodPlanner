@@ -17,7 +17,6 @@ class LoginFragment : Fragment(R.layout.fragment_login), AuthContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.findViewById<View>(R.id.navContainer)?.visibility = View.GONE
         _binding = FragmentLoginBinding.bind(view)
         presenter = AuthPresenter(this, UserPreferences(requireContext()))
 

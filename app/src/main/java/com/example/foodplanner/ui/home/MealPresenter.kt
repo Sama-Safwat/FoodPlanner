@@ -14,6 +14,7 @@ class MealPresenter(
 
     override fun start() {
         loadMealOfTheDay()
+        loadMeals()
     }
 
     override fun stop() {
@@ -21,6 +22,7 @@ class MealPresenter(
     }
 
     override fun loadMealOfTheDay() {
+
         view.showLoading()
 
         repository.getRandomMeal()
@@ -28,23 +30,42 @@ class MealPresenter(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { response ->
-                    view.hideLoading()
 
                     val meal = response.meals?.firstOrNull()
 
                     if (meal != null) {
                         view.showMeal(meal)
-                    } else {
-                        view.showError("No meal found")
                     }
                 },
-                { error ->
-                    view.hideLoading()
-                    view.showError(
-                        error.message ?: "Something went wrong"
-                    )
+                {
+                    view.showError("Unable to load meal of the day")
                 }
             )
-            .also { disposables.add(it) }
+            .also {
+                disposables.add(it)
+            }
+    }
+
+    override fun loadMeals() {
+
+        repository.searchMealsByName("a")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { response ->
+
+                    val meals = response.meals.orEmpty()
+
+                    if (meals.isNotEmpty()) {
+                        view.showMeals(meals.take(10))
+                    }
+                },
+                {
+                    // Meal of the day can still work even if this request fails
+                }
+            )
+            .also {
+                disposables.add(it)
+            }
     }
 }

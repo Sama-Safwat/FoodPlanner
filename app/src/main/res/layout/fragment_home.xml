@@ -1,83 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/spacing_md">
+    android:background="@color/background"
+    android:fillViewport="true">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_md">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/mealCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/spacing_md"
-        app:cardElevation="@dimen/spacing_xs"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/searchCard"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            android:backgroundTint="@color/surface_variant"
+            app:cardCornerRadius="@dimen/radius_lg"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="@dimen/spacing_md">
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
+                    android:src="@drawable/ic_search"
+                    android:contentDescription="@string/search"
+                    app:tint="@color/text_secondary" />
+
+                <TextView
+                    android:id="@+id/tvSearch"
+                    style="@style/FoodPlannerBody"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="@dimen/spacing_sm"
+                    android:text="Search for a meal..." />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            style="@style/FoodPlannerTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Meal of the Day"
+            android:textSize="@dimen/text_title"
+            android:layout_marginBottom="@dimen/spacing_sm" />
+
+        <TextView
+            android:id="@+id/loadingText"
+            style="@style/FoodPlannerBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading today's meal..."
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginBottom="@dimen/spacing_sm" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/mealCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_lg"
+            android:backgroundTint="@color/surface"
+            app:cardCornerRadius="@dimen/radius_lg"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/mealImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/meal_details" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <TextView
+                        android:id="@+id/mealName"
+                        style="@style/FoodPlannerTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_title" />
+
+                    <TextView
+                        android:id="@+id/mealCountry"
+                        style="@style/FoodPlannerBody"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_xs" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/mealImage"
-                android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:scaleType="centerCrop"
-                android:contentDescription="@string/app_name" />
+            android:gravity="center_vertical"
+            android:layout_marginBottom="@dimen/spacing_sm">
 
             <TextView
-                android:id="@+id/mealName"
-                android:layout_width="match_parent"
+                style="@style/FoodPlannerTitle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/spacing_md"
-                android:textSize="@dimen/text_title"
-                android:textStyle="bold" />
+                android:layout_weight="1"
+                android:text="Popular Meals"
+                android:textSize="@dimen/text_title" />
 
             <TextView
-                android:id="@+id/mealCountry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="@dimen/spacing_md"
-                android:paddingEnd="@dimen/spacing_md"
-                android:paddingBottom="@dimen/spacing_md"
-                android:textSize="@dimen/text_body" />
-
-            <Button
-                android:id="@+id/btnLogout"
-                style="@style/FoodPlannerButton"
+                android:id="@+id/tvSeeAll"
+                style="@style/FoodPlannerBody"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Logout"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_margin="16dp" />
+                android:text="See all"
+                android:textColor="@color/primary"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerMeals"
+            android:layout_width="match_parent"
+            android:layout_height="215dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never" />
 
-    <TextView
-        android:id="@+id/errorText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/errorText"
+            style="@style/FoodPlannerBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="@dimen/spacing_lg"
+            android:textColor="@color/error" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
