@@ -1,14 +1,18 @@
 package com.example.foodplanner.data.repository
 
+import android.util.Log
+import com.example.foodplanner.App
 import com.example.foodplanner.data.api.MealApi
 import com.example.foodplanner.data.local.MealDao
 import com.example.foodplanner.data.local.MealEntity
+import com.example.foodplanner.data.sync.SyncManager
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
 
 class MealRepository(
     private val mealApi: MealApi,
-    private val mealDao: MealDao
+    private val mealDao: MealDao,
+    private val sync: SyncManager? = App.instance.syncManager
 ) {
 
     fun getRandomMeal() = mealApi.getRandomMeal()
@@ -20,28 +24,27 @@ class MealRepository(
     fun getMealsByArea(area: String) = mealApi.getMealsByArea(area)
     fun getAreas() = mealApi.getAreas()
 
-    // add userId as a parameter
     fun isMealFavorite(userId: String, mealId: String): Single<Boolean> {
         return Single.fromCallable {
             mealDao.getMealByIdSync(userId, mealId) != null
         }
     }
 
-
     fun addFavorite(mealEntity: MealEntity): Completable {
         return Completable.fromAction {
+            Log.d("SYNC", "addFavorite → meal=${mealEntity.idMeal}, syncConnected=${sync != null}")
             mealDao.insertMeal(mealEntity)
+            sync?.backupFavorite(mealEntity)
         }
     }
 
-    // add userID as a parameter
     fun removeFavorite(userId: String, mealId: String): Completable {
         return Completable.fromAction {
             mealDao.deleteMealById(userId, mealId)
+            sync?.removeFavoriteBackup(mealId)
         }
     }
 
-    // add userId as a parameter
     fun getFavorites(userId: String): Single<List<MealEntity>> {
         return Single.fromCallable {
             mealDao.getAllMealsForUser(userId)

@@ -26,4 +26,6 @@ interface PlanDao {
 
     @Query("DELETE FROM weekly_plan WHERE userId = :userId")
     suspend fun clearPlan(userId: String)
+    @Query("SELECT * FROM weekly_plan WHERE planId = :planId")
+    fun getPlanById(planId: Int): PlannedMealEntity?
 }

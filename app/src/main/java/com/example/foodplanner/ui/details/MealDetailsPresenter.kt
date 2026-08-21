@@ -86,9 +86,9 @@ class MealDetailsPresenter(
         if (isFavorite) {
             currentMeal?.let { meal ->
                 val mealEntity = MealEntity(
-                    userId = UserProvider.getCurrentUserId(),   // ✅ الجديد
+                    userId = UserProvider.getCurrentUserId(),
                     idMeal = meal.idMeal ?: "",
-                    strMeal = meal.strMeal,
+                    strMeal = meal.strMeal?:"",
                     strCategory = meal.strCategory,
                     strArea = meal.strArea,
                     strInstructions = meal.strInstructions,

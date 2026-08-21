@@ -9,8 +9,10 @@ import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.example.foodplanner.App
 import com.example.foodplanner.data.api.RetrofitInstance
 import com.example.foodplanner.data.local.AppDatabase
 import com.example.foodplanner.data.model.Meal
@@ -20,6 +22,7 @@ import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentMealDetailsBinding
 import com.example.foodplanner.ui.planner.PlannerActivity
 import com.example.foodplanner.utils.AuthGuard
+import com.example.foodplanner.utils.UserProvider
 
 class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
@@ -65,7 +68,14 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         setupListeners()
         val remoteRepository = MealRemoteRepository(RetrofitInstance.api)
         val database = AppDatabase.getDatabase(requireContext())
-        val localRepository = MealRepository(RetrofitInstance.api, database.mealDao())
+
+
+        val localRepository = MealRepository(
+            RetrofitInstance.api,
+            database.mealDao(),
+            (requireActivity().application as App).syncManager
+        )
+
         presenter = MealDetailsPresenter(this, remoteRepository, localRepository)
         if (mealId.isNotEmpty()) {
             presenter.loadMealDetails(mealId)
@@ -84,9 +94,16 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     private fun setupListeners() {
         binding.favoriteButton.setOnClickListener {
-            AuthGuard.requireLogin(this, userPrefs) {
-                presenter.toggleFavorite()
+
+            if (com.example.foodplanner.utils.UserProvider.getCurrentUserId() == "guest") {
+                android.widget.Toast.makeText(
+                    requireContext(),
+                    "Please login first to save favorites",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
             }
+            presenter.toggleFavorite()
         }
 
         binding.backButton.setOnClickListener {
@@ -94,16 +111,20 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         }
 
         binding.addToPlanButton.setOnClickListener {
-            AuthGuard.requireLogin(this, userPrefs) {
-                currentMeal?.let { meal ->
-                    val intent = Intent(requireContext(), PlannerActivity::class.java)
-                    intent.putExtra("meal_id", meal.idMeal)
-                    intent.putExtra("meal_name", meal.strMeal)
-                    intent.putExtra("meal_image", meal.strMealThumb)
-                    startActivity(intent)
-                } ?: run {
-                    showError("No meal to add to plan!")
-                }
+            if (com.example.foodplanner.utils.UserProvider.getCurrentUserId() == "guest") {
+                android.widget.Toast.makeText(
+                    requireContext(),
+                    "Please login first to add to plan",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            currentMeal?.let { meal ->
+                val intent = android.content.Intent(requireContext(), PlannerActivity::class.java)
+                intent.putExtra("meal_id", meal.idMeal)
+                intent.putExtra("meal_name", meal.strMeal)
+                intent.putExtra("meal_image", meal.strMealThumb)
+                startActivity(intent)
             }
         }
     }
@@ -143,7 +164,6 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         }
     }
 
-    // ✅ دالة الفيديو باستخدام WebView مع HTML Embedded و baseUrl
     override fun showVideo(videoUrl: String) {
         val videoId = extractYouTubeId(videoUrl)
         if (videoId != null) {
@@ -170,7 +190,6 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
                 settings.useWideViewPort = true
                 webViewClient = WebViewClient()
                 webChromeClient = WebChromeClient()
-                // تحميل HTML مع تعيين Base URL لحل مشكلة Referer
                 loadDataWithBaseURL(
                     "https://${requireContext().packageName}/",
                     html,
@@ -227,7 +246,6 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     override fun onDestroyView() {
         presenter.stop()
-        // WebView لا يحتاج إلى release مثل YouTubePlayerView
         _binding = null
         super.onDestroyView()
     }

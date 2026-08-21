@@ -48,6 +48,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
+
+    implementation ("com.google.firebase:firebase-firestore" )
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation(libs.androidx.activity.ktx)

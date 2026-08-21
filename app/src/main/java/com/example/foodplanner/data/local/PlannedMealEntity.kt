@@ -7,9 +7,9 @@ import androidx.room.Index
     indices = [Index(value = ["date", "mealId","userId"], unique = true)])
 data class PlannedMealEntity(
     @PrimaryKey(autoGenerate = true) val planId: Int = 0,
-    val date: String,
-    val mealId: String,
-    val userId :String,
-    val mealName: String,
-    val mealImageUrl: String
+    val userId: String = "",
+    val date: String = "",
+    val mealId: String = "",
+    val mealName: String = "",
+    val mealImageUrl: String = ""
 )

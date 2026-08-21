@@ -6,13 +6,12 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "meals",
 primaryKeys = ["userId", "idMeal"])
 data class MealEntity(
-
-    val idMeal: String,
-    val userId: String,
-    val strMeal: String?,
-    val strCategory: String?,
-    val strArea: String?,
-    val strInstructions: String?,
-    val strMealThumb: String?,
-    val strYoutube: String?
+    val userId: String = "",
+    val idMeal: String = "",
+    val strMeal: String = "",
+    val strMealThumb: String? = null,
+    val strCategory: String? = null,
+    val strArea: String? = null,
+    val strInstructions: String? = null,
+    val strYoutube: String? = null
 )

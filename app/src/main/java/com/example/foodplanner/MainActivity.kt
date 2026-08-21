@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.ui.auth.AuthActivity
 import com.example.foodplanner.ui.categories.CategoriesFragment
@@ -19,6 +20,7 @@ import com.example.foodplanner.utils.AuthGuard
 import com.example.foodplanner.utils.UserProvider
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,6 +45,12 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             openFragment(HomeFragment())
             bottomNavigation.selectedItemId = R.id.nav_home
+        }
+        lifecycleScope.launch {
+            val count = runCatching { (application as App).syncManager.restore() }
+                .onFailure { android.util.Log.e("SYNC", "restore failed", it) }
+                .getOrDefault(0)
+            android.util.Log.d("SYNC", "restore finished → count=$count")
         }
     }
 
