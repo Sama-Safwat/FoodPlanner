@@ -24,7 +24,7 @@ class SearchFragment : Fragment(), SearchContract.View {
     private var currentSearchType = SearchType.NAME
 
     enum class SearchType {
-        NAME, CATEGORY, INGREDIENT
+        NAME, CATEGORY, INGREDIENT, COUNTRY
     }
 
     override fun onCreateView(
@@ -49,7 +49,7 @@ class SearchFragment : Fragment(), SearchContract.View {
     }
 
     private fun setupTabs() {
-        val tabTitles = listOf("Name", "Category", "Ingredient")
+        val tabTitles = listOf("Name", "Category", "Ingredient", "Country")
 
         binding.tabLayout.removeAllTabs()
         tabTitles.forEach { title ->
@@ -61,12 +61,14 @@ class SearchFragment : Fragment(), SearchContract.View {
                 currentSearchType = when (tab?.position) {
                     0 -> SearchType.NAME
                     1 -> SearchType.CATEGORY
-                    else -> SearchType.INGREDIENT
+                    2 -> SearchType.INGREDIENT
+                    else -> SearchType.COUNTRY
                 }
                 binding.searchInput.hint = when (currentSearchType) {
                     SearchType.NAME -> "Search by meal name..."
                     SearchType.CATEGORY -> "Search by category..."
                     SearchType.INGREDIENT -> "Search by ingredient..."
+                    SearchType.COUNTRY -> "Search by Country..."
                 }
                 clearResults()
                 binding.searchInput.text?.clear()
@@ -87,6 +89,7 @@ class SearchFragment : Fragment(), SearchContract.View {
                 SearchType.NAME -> presenter.searchByName(query)
                 SearchType.CATEGORY -> presenter.searchByCategory(query)
                 SearchType.INGREDIENT -> presenter.searchByIngredient(query)
+                SearchType.COUNTRY -> presenter.searchByCountry(query)
             }
         }
 
@@ -96,6 +99,7 @@ class SearchFragment : Fragment(), SearchContract.View {
                 SearchType.NAME -> presenter.searchByName(query)
                 SearchType.CATEGORY -> presenter.searchByCategory(query)
                 SearchType.INGREDIENT -> presenter.searchByIngredient(query)
+                SearchType.COUNTRY -> presenter.searchByCountry(query)
             }
         }
     }

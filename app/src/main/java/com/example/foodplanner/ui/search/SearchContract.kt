@@ -18,6 +18,7 @@ interface SearchContract {
         fun searchByName(query: String)
         fun searchByCategory(category: String)
         fun searchByIngredient(ingredient: String)
+        fun searchByCountry(country: String)
         fun loadCategories()
         fun loadIngredients()
         fun onMealClicked(mealId: String)

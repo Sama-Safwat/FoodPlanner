@@ -135,6 +135,30 @@ class SearchPresenter(
             .also { disposables.add(it) }
     }
 
+    override fun searchByCountry(country: String) {
+        if (country.isEmpty()) return
+        view.showLoading()
+        repository.getMealsByArea(country)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { response ->
+                    view.hideLoading()
+                    val meals = response.meals ?: emptyList()
+                    if (meals.isNotEmpty()) {
+                        view.showSearchResults(meals)
+                    } else {
+                        view.showError("No meals found in this country")
+                    }
+                },
+                { error ->
+                    view.hideLoading()
+                    view.showError(error.message ?: "Failed to load meals")
+                }
+            )
+            .also { disposables.add(it) }
+    }
+
     override fun onMealClicked(mealId: String) {
         view.navigateToMealDetails(mealId)
     }
