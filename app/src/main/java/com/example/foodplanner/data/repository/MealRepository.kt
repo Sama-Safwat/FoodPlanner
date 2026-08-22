@@ -50,4 +50,18 @@ class MealRepository(
             mealDao.getAllMealsForUser(userId)
         }
     }
+
+    suspend fun isMealFavoriteSuspend(userId: String, mealId: String): Boolean {
+        return mealDao.getMealById(userId, mealId) != null
+    }
+
+    suspend fun addFavoriteSuspend(mealEntity: MealEntity) {
+        mealDao.insertMeal(mealEntity)
+    }
+
+    suspend fun removeFavoriteSuspend(userId: String, mealId: String) {
+        mealDao.deleteMealById(userId, mealId)
+    }
+
+
 }

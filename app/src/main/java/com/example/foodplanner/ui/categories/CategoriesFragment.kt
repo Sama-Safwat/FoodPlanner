@@ -6,23 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.foodplanner.R
 import com.example.foodplanner.data.api.RetrofitInstance
-import com.example.foodplanner.data.model.Category
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.databinding.FragmentCategoriesBinding
 import com.example.foodplanner.ui.details.MealDetailsFragment
 
-class CategoriesFragment : Fragment(), CategoriesContract.View {
+class CategoriesFragment : Fragment() {
 
     private var _binding: FragmentCategoriesBinding? = null
     private val binding get() = _binding!!
-    private var isShowingMeals = false
-    private lateinit var presenter: CategoriesContract.Presenter
+
+    private lateinit var viewModel: CategoriesViewModel
     private lateinit var categoriesAdapter: CategoriesAdapter
     private lateinit var mealsAdapter: CategoryMealsAdapter
+    private var isShowingMeals = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,16 +38,65 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerViews()
+        setupViewModel()
         setupListeners()
+    }
 
+    private fun setupViewModel() {
         val repository = MealRemoteRepository(RetrofitInstance.api)
-        presenter = CategoriesPresenter(this, repository)
-        presenter.start()
+        val factory = CategoriesViewModelFactory(repository)
+        viewModel = ViewModelProvider(this, factory).get(CategoriesViewModel::class.java)
+        viewModel.categories.observe(viewLifecycleOwner) { categories ->
+            binding.errorText.visibility = View.GONE
+            if (categories.isNotEmpty()) {
+                categoriesAdapter.submitList(categories)
+                binding.categoriesRecyclerView.visibility = View.VISIBLE
+                binding.mealsRecyclerView.visibility = View.GONE
+                binding.categoryTitle.visibility = View.GONE
+                binding.btnBackToCategories.visibility = View.GONE
+                isShowingMeals = false
+            }
+        }
+        viewModel.meals.observe(viewLifecycleOwner) { meals ->
+            binding.errorText.visibility = View.GONE
+            if (meals.isNotEmpty()) {
+                mealsAdapter.submitList(meals)
+                binding.categoriesRecyclerView.visibility = View.GONE
+                binding.mealsRecyclerView.visibility = View.VISIBLE
+                binding.categoryTitle.visibility = View.VISIBLE
+                binding.categoryTitle.text = "Meals in this category"
+                binding.btnBackToCategories.visibility = View.VISIBLE
+                isShowingMeals = true
+            }
+        }
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading == true) View.VISIBLE else View.GONE
+        }
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            if (error != null) {
+                binding.errorText.visibility = View.VISIBLE
+                binding.errorText.text = error
+            } else {
+                binding.errorText.visibility = View.GONE
+            }
+        }
+        viewModel.toastMessage.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.onToastShown()
+            }
+        }
+        viewModel.navigateToMealDetails.observe(viewLifecycleOwner) { mealId ->
+            mealId?.let {
+                navigateToMealDetails(it)
+                viewModel.onNavigationDone()
+            }
+        }
     }
 
     private fun setupRecyclerViews() {
         categoriesAdapter = CategoriesAdapter { category ->
-            presenter.loadMealsByCategory(category.strCategory ?: "")
+            viewModel.loadMealsByCategory(category.strCategory ?: "")
         }
         binding.categoriesRecyclerView.apply {
             layoutManager = GridLayoutManager(context, 2)
@@ -54,18 +104,11 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
         }
 
         mealsAdapter = CategoryMealsAdapter { mealId ->
-            presenter.onMealClicked(mealId)
+            viewModel.onMealClicked(mealId)
         }
         binding.mealsRecyclerView.apply {
             layoutManager = GridLayoutManager(context, 2)
             adapter = mealsAdapter
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (isShowingMeals){
-            binding.btnBackToCategories.visibility = View.VISIBLE
         }
     }
 
@@ -81,44 +124,10 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
         binding.mealsRecyclerView.visibility = View.GONE
         binding.categoryTitle.visibility = View.GONE
         binding.btnBackToCategories.visibility = View.GONE
-        presenter.loadCategories()
+        viewModel.loadCategories()
     }
 
-    override fun showLoading() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.errorText.visibility = View.GONE
-    }
-
-    override fun hideLoading() {
-        binding.progressBar.visibility = View.GONE
-    }
-
-    override fun showCategories(categories: List<Category>) {
-        categoriesAdapter.submitList(categories)
-        binding.categoriesRecyclerView.visibility = View.VISIBLE
-        binding.mealsRecyclerView.visibility = View.GONE
-        binding.categoryTitle.visibility = View.GONE
-        binding.btnBackToCategories.visibility = View.GONE
-        isShowingMeals = false
-    }
-
-    override fun showCategoryMeals(meals: List<Meal>) {
-        mealsAdapter.submitList(meals)
-        binding.categoriesRecyclerView.visibility = View.GONE
-        binding.mealsRecyclerView.visibility = View.VISIBLE
-        binding.categoryTitle.visibility = View.VISIBLE
-        binding.categoryTitle.text = "Meals in this category"
-        binding.btnBackToCategories.visibility = View.VISIBLE
-        isShowingMeals = true
-    }
-
-    override fun showError(message: String) {
-        binding.progressBar.visibility = View.GONE
-        binding.errorText.visibility = View.VISIBLE
-        binding.errorText.text = message
-    }
-
-    override fun navigateToMealDetails(mealId: String) {
+    private fun navigateToMealDetails(mealId: String) {
         val fragment = MealDetailsFragment.newInstance(mealId)
         parentFragmentManager.beginTransaction()
             .hide(this)
@@ -127,13 +136,15 @@ class CategoriesFragment : Fragment(), CategoriesContract.View {
             .commit()
     }
 
-    override fun onDestroyView() {
-        presenter.stop()
-        _binding = null
-        super.onDestroyView()
+    override fun onResume() {
+        super.onResume()
+        if (isShowingMeals) {
+            binding.btnBackToCategories.visibility = View.VISIBLE
+        }
     }
 
-    override fun showToast(message: String){
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

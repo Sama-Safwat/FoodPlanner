@@ -1,27 +1,31 @@
 package com.example.foodplanner.ui.auth
 
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.foodplanner.R
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentLoginBinding
 import com.example.foodplanner.ui.home.HomeFragment
 import com.example.foodplanner.App
 
-class LoginFragment : Fragment(R.layout.fragment_login), AuthContract.View {
+class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private lateinit var presenter: AuthContract.Presenter
+    private lateinit var viewModel: AuthViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentLoginBinding.bind(view)
-        presenter = AuthPresenter(this, UserPreferences(requireContext()))
+
+        val userPrefs = UserPreferences(requireContext())
+        val factory = AuthViewModelFactory(userPrefs)
+        viewModel = ViewModelProvider(this, factory).get(AuthViewModel::class.java)
+
+        observeViewModel()
 
         binding.tvRegister.setOnClickListener {
             parentFragmentManager.beginTransaction()
@@ -37,30 +41,45 @@ class LoginFragment : Fragment(R.layout.fragment_login), AuthContract.View {
                 showError("Fill all fields")
                 return@setOnClickListener
             }
-            presenter.login(email, pass)
+            viewModel.login(email, pass)
         }
 
         binding.btnGuest.setOnClickListener {
-            presenter.loginAsGuest()
+            viewModel.loginAsGuest()
         }
     }
 
-    override fun showLoading() { binding.progressBar.visibility = View.VISIBLE }
-    override fun hideLoading() { binding.progressBar.visibility = View.GONE }
-    override fun showError(message: String) = Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-
-    override fun onSuccess() {
-        requireActivity().lifecycleScope.launch {
-            runCatching { (requireActivity().application as App).syncManager.restore() }
-                .onFailure { android.util.Log.e("SYNC", "restore failed", it) }
+    private fun observeViewModel() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading == true) View.VISIBLE else View.GONE
         }
+
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                showError(it)
+                viewModel.onErrorShown()
+            }
+        }
+
+        viewModel.isLoggedIn.observe(viewLifecycleOwner) { isLoggedIn ->
+            if (isLoggedIn == true) {
+                onSuccess()
+            }
+        }
+    }
+
+    private fun showError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    }
+
+    private fun onSuccess() {
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, HomeFragment())
             .commit()
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         _binding = null
+        super.onDestroyView()
     }
 }

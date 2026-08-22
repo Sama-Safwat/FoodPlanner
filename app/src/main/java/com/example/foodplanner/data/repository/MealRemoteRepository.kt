@@ -9,43 +9,83 @@ import io.reactivex.rxjava3.core.Single
 
 class MealRemoteRepository(private val mealApi: MealApi) {
 
-    fun getRandomMeal(): Single<MealResponse> {
+    fun getRandomMealRx(): Single<MealResponse> {
         return mealApi.getRandomMeal()
     }
 
-    fun getMealDetails(id: String): Single<MealResponse> {
+    fun getMealDetailsRx(id: String): Single<MealResponse> {
         return mealApi.getMealDetails(id)
     }
 
-    fun searchMealsByName(name: String): Single<MealResponse> {
+    fun searchMealsByNameRx(name: String): Single<MealResponse> {
         return mealApi.searchMealByName(name)
     }
 
-    fun searchMealsByFirstLetter(letter: String): Single<MealResponse> {
+    fun searchMealsByFirstLetterRx(letter: String): Single<MealResponse> {
         return mealApi.searchMealsByFirstLetter(letter)
     }
 
-    fun getCategories(): Single<CategoryResponse> {
+    fun getCategoriesRx(): Single<CategoryResponse> {
         return mealApi.getCategories()
     }
 
-    fun getMealsByCategory(category: String): Single<MealResponse> {
+    fun getMealsByCategoryRx(category: String): Single<MealResponse> {
         return mealApi.getMealsByCategory(category)
     }
 
-    fun getMealsByIngredient(ingredient: String): Single<MealResponse> {
+    fun getMealsByIngredientRx(ingredient: String): Single<MealResponse> {
         return mealApi.getMealsByIngredient(ingredient)
     }
 
-    fun getMealsByArea(area: String): Single<MealResponse> {
+    fun getMealsByAreaRx(area: String): Single<MealResponse> {
         return mealApi.getMealsByArea(area)
     }
 
-    fun getAreas(): Single<AreaResponse> {
+    fun getAreasRx(): Single<AreaResponse> {
         return mealApi.getAreas()
     }
 
-    fun getIngredients(): Single<IngredientResponse>{
+    fun getIngredientsRx(): Single<IngredientResponse> {
         return mealApi.getIngredients()
+    }
+
+    suspend fun getRandomMeal(): MealResponse {
+        return mealApi.getRandomMealSuspend()
+    }
+
+    suspend fun searchMealsByName(name: String): MealResponse {
+        return mealApi.searchMealByNameSuspend(name)
+    }
+
+    suspend fun getMealDetails(id: String): MealResponse {
+        return mealApi.getMealDetailsSuspend(id)
+    }
+
+    suspend fun searchMealsByFirstLetter(letter: String): MealResponse {
+        return mealApi.searchMealsByFirstLetterSuspend(letter)
+    }
+
+    suspend fun getCategories(): CategoryResponse {
+        return mealApi.getCategoriesSuspend()
+    }
+
+    suspend fun getMealsByCategory(category: String): MealResponse {
+        return mealApi.getMealsByCategorySuspend(category)
+    }
+
+    suspend fun getMealsByIngredient(ingredient: String): MealResponse {
+        return mealApi.getMealsByIngredientSuspend(ingredient)
+    }
+
+    suspend fun getMealsByArea(area: String): MealResponse {
+        return mealApi.getMealsByAreaSuspend(area)
+    }
+
+    suspend fun getAreas(): AreaResponse {
+        return mealApi.getAreasSuspend()
+    }
+
+    suspend fun getIngredients(): IngredientResponse {
+        return mealApi.getIngredientsSuspend()
     }
 }

@@ -8,26 +8,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.foodplanner.App
 import com.example.foodplanner.data.api.RetrofitInstance
 import com.example.foodplanner.data.local.AppDatabase
 import com.example.foodplanner.data.model.Meal
+import com.example.foodplanner.data.repository.FavoritesRepository
 import com.example.foodplanner.data.repository.MealRemoteRepository
-import com.example.foodplanner.data.repository.MealRepository
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentMealDetailsBinding
 import com.example.foodplanner.ui.planner.PlannerActivity
+import com.example.foodplanner.utils.UserProvider
 
-class MealDetailsFragment : Fragment(), MealDetailsContract.View {
+class MealDetailsFragment : Fragment() {
 
     private var _binding: FragmentMealDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var presenter: MealDetailsContract.Presenter
+    private lateinit var viewModel: MealDetailsViewModel
     private lateinit var ingredientsAdapter: IngredientsAdapter
-    private lateinit var userPrefs: UserPreferences
     private var mealId: String = ""
     private var currentMeal: Meal? = null
 
@@ -59,22 +61,64 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        userPrefs = UserPreferences(requireContext())
+
         setupRecyclerView()
+        setupViewModel()
         setupListeners()
+    }
+
+    private fun setupViewModel() {
         val remoteRepository = MealRemoteRepository(RetrofitInstance.api)
         val database = AppDatabase.getDatabase(requireContext())
+        val favoritesRepository = FavoritesRepository(database.favoritesDao())
 
+        val factory = MealDetailsViewModelFactory(remoteRepository, favoritesRepository)
+        viewModel = ViewModelProvider(this, factory).get(MealDetailsViewModel::class.java)
 
-        val localRepository = MealRepository(
-            RetrofitInstance.api,
-            database.mealDao(),
-            (requireActivity().application as App).syncManager
-        )
+        viewModel.meal.observe(viewLifecycleOwner) { meal ->
+            meal?.let { showMealDetails(it) }
+        }
 
-        presenter = MealDetailsPresenter(this, remoteRepository, localRepository)
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            if (isLoading == true) {
+                showLoading()
+            } else {
+                hideLoading()
+            }
+        }
+
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                showError(it)
+                viewModel.onErrorShown()
+            }
+        }
+
+        viewModel.isFavorite.observe(viewLifecycleOwner) { isFavorite ->
+            if (isFavorite != null) {
+                showFavoriteStatus(isFavorite)
+            }
+        }
+
+        viewModel.ingredients.observe(viewLifecycleOwner) { ingredients ->
+            if (ingredients.isNotEmpty()) {
+                showIngredients(ingredients)
+            }
+        }
+
+        viewModel.videoUrl.observe(viewLifecycleOwner) { videoUrl ->
+            videoUrl?.let { showVideo(it) }
+        }
+
+        viewModel.navigateBack.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate == true) {
+                navigateBack()
+                viewModel.onNavigationDone()
+            }
+        }
+
         if (mealId.isNotEmpty()) {
-            presenter.loadMealDetails(mealId)
+            viewModel.loadMealDetails(mealId)
         } else {
             showError("No meal ID provided")
         }
@@ -94,33 +138,32 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     private fun setupListeners() {
         binding.favoriteButton.setOnClickListener {
-
-            if (com.example.foodplanner.utils.UserProvider.getCurrentUserId() == "guest") {
-                android.widget.Toast.makeText(
+            if (UserProvider.getCurrentUserId() == "guest") {
+                Toast.makeText(
                     requireContext(),
                     "Please login first to save favorites",
-                    android.widget.Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
             }
-            presenter.toggleFavorite()
+            viewModel.toggleFavorite()
         }
 
         binding.backButton.setOnClickListener {
-            presenter.onBackPressed()
+            viewModel.onBackPressed()
         }
 
         binding.addToPlanButton.setOnClickListener {
-            if (com.example.foodplanner.utils.UserProvider.getCurrentUserId() == "guest") {
-                android.widget.Toast.makeText(
+            if (UserProvider.getCurrentUserId() == "guest") {
+                Toast.makeText(
                     requireContext(),
                     "Please login first to add to plan",
-                    android.widget.Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
             }
             currentMeal?.let { meal ->
-                val intent = android.content.Intent(requireContext(), PlannerActivity::class.java)
+                val intent = Intent(requireContext(), PlannerActivity::class.java)
                 intent.putExtra("meal_id", meal.idMeal)
                 intent.putExtra("meal_name", meal.strMeal)
                 intent.putExtra("meal_image", meal.strMealThumb)
@@ -129,17 +172,17 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         }
     }
 
-    override fun showLoading() {
+    private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
         binding.contentLayout.visibility = View.GONE
         binding.errorText.visibility = View.GONE
     }
 
-    override fun hideLoading() {
+    private fun hideLoading() {
         binding.progressBar.visibility = View.GONE
     }
 
-    override fun showMealDetails(meal: Meal) {
+    private fun showMealDetails(meal: Meal) {
         currentMeal = meal
         binding.contentLayout.visibility = View.VISIBLE
         binding.errorText.visibility = View.GONE
@@ -154,7 +197,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
             .into(binding.mealImage)
     }
 
-    override fun showFavoriteStatus(isFavorite: Boolean) {
+    private fun showFavoriteStatus(isFavorite: Boolean) {
         if (isFavorite) {
             binding.favoriteButton.text = "Remove from Favorites"
             binding.favoriteButton.setBackgroundColor(resources.getColor(android.R.color.holo_red_light, null))
@@ -164,7 +207,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         }
     }
 
-    override fun showVideo(videoUrl: String) {
+    private fun showVideo(videoUrl: String) {
         val videoId = extractYouTubeId(videoUrl)
         if (videoId != null) {
             binding.videoContainer.visibility = View.VISIBLE
@@ -190,7 +233,6 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
                 settings.useWideViewPort = true
                 webViewClient = WebViewClient()
                 webChromeClient = WebChromeClient()
-                // تحميل HTML مع تعيين Base URL لحل مشكلة Referer
                 loadDataWithBaseURL(
                     "https://${requireContext().packageName}/",
                     html,
@@ -204,7 +246,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         }
     }
 
-    override fun showIngredients(ingredients: List<Pair<String, String>>) {
+    private fun showIngredients(ingredients: List<Pair<String, String>>) {
         if (ingredients.isEmpty()) {
             binding.ingredientsSection.visibility = View.GONE
             return
@@ -213,14 +255,14 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
         ingredientsAdapter.submitList(ingredients)
     }
 
-    override fun showError(message: String) {
+    private fun showError(message: String) {
         binding.progressBar.visibility = View.GONE
         binding.contentLayout.visibility = View.GONE
         binding.errorText.visibility = View.VISIBLE
         binding.errorText.text = message
     }
 
-    override fun navigateBack() {
+    private fun navigateBack() {
         parentFragmentManager.popBackStack()
     }
 
@@ -246,8 +288,6 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
     }
 
     override fun onDestroyView() {
-        presenter.stop()
-        // WebView لا يحتاج إلى release مثل YouTubePlayerView
         _binding = null
         super.onDestroyView()
     }

@@ -6,17 +6,14 @@ import android.widget.CalendarView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodplanner.R
 import com.example.foodplanner.data.local.AppDatabase
-import com.example.foodplanner.data.local.PlannedMealEntity
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.data.repository.WeeklyPlanRepository
 import com.example.foodplanner.utils.DateUtils
-import kotlinx.coroutines.launch
-import java.util.Date
 
 class PlannerActivity : AppCompatActivity() {
 
@@ -25,11 +22,7 @@ class PlannerActivity : AppCompatActivity() {
     private lateinit var btnAddMeal: Button
     private lateinit var recyclerPlanner: RecyclerView
     private lateinit var adapter: PlannerAdapter
-    private lateinit var repository: WeeklyPlanRepository
-
-
-    private var selectedDate = DateUtils.toIso(Date())
-    private var allMeals = emptyList<PlannedMealEntity>()
+    private lateinit var viewModel: PlannerViewModel
 
     private var incomingMealId: String? = null
     private var incomingMealName: String? = null
@@ -56,100 +49,78 @@ class PlannerActivity : AppCompatActivity() {
         incomingMealImage = intent.getStringExtra("meal_image")
 
         val database = AppDatabase.getDatabase(this)
-        repository = WeeklyPlanRepository(database.planDao())
+        val repository = WeeklyPlanRepository(database.planDao())
 
+        val factory = PlannerViewModelFactory(repository)
+        viewModel = ViewModelProvider(this, factory).get(PlannerViewModel::class.java)
+
+        setupAdapter()
+        setupObservers()
+        setupListeners()
+
+        tvSelectedDate.text = "Meals for ${DateUtils.toDisplay(viewModel.selectedDate.value ?: "")}"
+    }
+
+    private fun setupAdapter() {
         adapter = PlannerAdapter { meal ->
-            lifecycleScope.launch {
-                repository.removeMealFromPlan(meal.planId)
-                Toast.makeText(
-                    this@PlannerActivity,
-                    "Meal removed",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            viewModel.removeMealFromPlan(meal)
         }
 
         recyclerPlanner.layoutManager = LinearLayoutManager(this)
         recyclerPlanner.adapter = adapter
+    }
 
+    private fun setupObservers() {
+        viewModel.meals.observe(this) { meals ->
+            adapter.submitList(meals)
+        }
 
-        tvSelectedDate.text = "Meals for ${DateUtils.toDisplay(selectedDate)}"
+        viewModel.selectedDate.observe(this) { date ->
+            tvSelectedDate.text = "Meals for ${DateUtils.toDisplay(date)}"
+        }
 
-        observePlan()
+        viewModel.toastMessage.observe(this) { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                viewModel.onToastShown()
+            }
+        }
+    }
 
+    private fun setupListeners() {
         calendarPlanner.setOnDateChangeListener { _, year, month, dayOfMonth ->
             val calendarDate = java.util.Calendar.getInstance().apply {
                 set(year, month, dayOfMonth)
             }
-
-
-            selectedDate = DateUtils.toIso(calendarDate.time)
-
-
-            tvSelectedDate.text = "Meals for ${DateUtils.toDisplay(selectedDate)}"
-
-            showSelectedDayMeals()
+            val date = DateUtils.toIso(calendarDate.time)
+            viewModel.onDateSelected(date)
         }
 
         btnAddMeal.setOnClickListener {
-            if (incomingMealId != null && incomingMealName != null){
-                addMealToPlan(incomingMealId!!, incomingMealName!!, incomingMealImage!!)
+            if (incomingMealId != null && incomingMealName != null) {
+                viewModel.addMealToPlan(
+                    incomingMealId!!,
+                    incomingMealName!!,
+                    incomingMealImage
+                )
                 incomingMealId = null
                 incomingMealName = null
                 incomingMealImage = null
-            }else{
+            } else {
                 Toast.makeText(
                     this,
-                    "No meal selected. please go back and choose meal first.",
+                    "No meal selected. Please go back and choose a meal first.",
                     Toast.LENGTH_LONG
                 ).show()
             }
         }
-        if (incomingMealId != null && incomingMealName != null){
+
+        if (incomingMealId != null && incomingMealName != null) {
             Toast.makeText(
                 this,
-                "Add '${incomingMealName}' to plan? Press 'Add Meal' ",
+                "Add '${incomingMealName}' to plan? Press 'Add Meal'",
                 Toast.LENGTH_LONG
             ).show()
         }
     }
-
-    private fun observePlan() {
-        lifecycleScope.launch {
-            repository.getPlan().collect { meals ->
-                allMeals = meals
-                showSelectedDayMeals()
-            }
-        }
-    }
-
-    private fun showSelectedDayMeals() {
-
-        val selectedMeals = allMeals.filter { it.date == selectedDate }
-        adapter.submitList(selectedMeals)
-    }
-
-    private fun addMealToPlan(mealId: String, mealName: String, mealImageUrl: String?){
-        val meal = PlannedMealEntity(
-            userId = "",
-            date = selectedDate,
-            mealId = mealId,
-            mealName = mealName,
-            mealImageUrl = mealImageUrl ?: "https://www.themealdb.com/images/media/meals/placeholder.jpg"
-        )
-        lifecycleScope.launch {
-            repository.addMealToPlan(meal)
-            Toast.makeText(
-                this@PlannerActivity,
-                "'${mealName}' added to ${DateUtils.toDisplay(selectedDate)}",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            incomingMealId = null
-            incomingMealName = null
-            incomingMealImage = null
-        }
-    }
-
-
 }

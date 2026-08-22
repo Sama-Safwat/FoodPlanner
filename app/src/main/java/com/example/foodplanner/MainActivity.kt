@@ -8,7 +8,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.ui.auth.LoginFragment
 import com.example.foodplanner.ui.auth.RegisterFragment
@@ -48,12 +47,12 @@ class MainActivity : AppCompatActivity() {
         setupToolbar()
         setupBottomNavigation()
         setupDrawer()
-        setupDrawer()
         observeFragmentChanges()
 
         if (savedInstanceState == null) {
             openFragment(SplashFragment())
-        }}
+        }
+    }
 
     private fun observeFragmentChanges() {
         supportFragmentManager.registerFragmentLifecycleCallbacks(
@@ -74,145 +73,96 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-
         toolbar.setNavigationOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
     }
 
     private fun setupBottomNavigation() {
-
         bottomNavigation.setOnItemSelectedListener { item ->
-
             when (item.itemId) {
-
                 R.id.nav_home -> {
                     openFragment(HomeFragment())
                     true
                 }
-
                 R.id.nav_categories -> {
                     openFragment(CategoriesFragment())
                     true
                 }
-
                 R.id.nav_countries -> {
                     openFragment(CountriesFragment())
                     true
                 }
-
                 R.id.nav_planner -> {
-
                     val userPrefs = UserPreferences(this)
-
-                    val currentFragment =
-                        supportFragmentManager.findFragmentById(
-                            R.id.fragmentContainer
-                        ) ?: HomeFragment()
+                    val currentFragment = supportFragmentManager.findFragmentById(
+                        R.id.fragmentContainer
+                    ) ?: HomeFragment()
 
                     AuthGuard.requireLogin(
                         currentFragment,
                         userPrefs
                     ) {
-                        startActivity(
-                            Intent(
-                                this,
-                                PlannerActivity::class.java
-                            )
-                        )
+                        startActivity(Intent(this, PlannerActivity::class.java))
                     }
-
                     true
                 }
-
                 else -> false
             }
         }
     }
 
     private fun setupDrawer() {
-
         navigationView.setNavigationItemSelectedListener { item ->
-
             when (item.itemId) {
-
                 R.id.drawer_home -> {
-
                     openFragment(HomeFragment())
                     bottomNavigation.selectedItemId = R.id.nav_home
                 }
-
                 R.id.drawer_favorites -> {
-
                     val userPrefs = UserPreferences(this)
-
-                    val currentFragment =
-                        supportFragmentManager.findFragmentById(
-                            R.id.fragmentContainer
-                        ) ?: HomeFragment()
+                    val currentFragment = supportFragmentManager.findFragmentById(
+                        R.id.fragmentContainer
+                    ) ?: HomeFragment()
 
                     AuthGuard.requireLogin(
                         currentFragment,
                         userPrefs
                     ) {
-                        startActivity(
-                            Intent(
-                                this,
-                                FavoritesActivity::class.java
-                            )
-                        )
+                        startActivity(Intent(this, FavoritesActivity::class.java))
                     }
                 }
-
                 R.id.drawer_planner -> {
-
                     val userPrefs = UserPreferences(this)
-
-                    val currentFragment =
-                        supportFragmentManager.findFragmentById(
-                            R.id.fragmentContainer
-                        ) ?: HomeFragment()
+                    val currentFragment = supportFragmentManager.findFragmentById(
+                        R.id.fragmentContainer
+                    ) ?: HomeFragment()
 
                     AuthGuard.requireLogin(
                         currentFragment,
                         userPrefs
                     ) {
-                        startActivity(
-                            Intent(
-                                this,
-                                PlannerActivity::class.java
-                            )
-                        )
+                        startActivity(Intent(this, PlannerActivity::class.java))
                     }
                 }
-
                 R.id.drawer_search -> {
                     openFragment(SearchFragment())
                 }
-
                 R.id.drawer_logout -> {
-
                     UserProvider.logout()
-
                     UserPreferences(this).clearSession()
-
                     supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
                     openFragment(LoginFragment())
                 }
             }
-
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
     }
 
     private fun openFragment(fragment: Fragment) {
-
         supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                fragment
-            )
+            .replace(R.id.fragmentContainer, fragment)
             .commit()
     }
 
