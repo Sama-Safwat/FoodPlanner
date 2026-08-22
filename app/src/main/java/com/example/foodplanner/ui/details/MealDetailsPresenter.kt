@@ -44,7 +44,7 @@ class MealDetailsPresenter(
 
                         meal.strYoutube?.let { videoUrl ->
                             if (videoUrl.isNotEmpty()) {
-                                view.showVideo(videoUrl)
+                                view.showVideo(meal.strYoutube.orEmpty())
                             }
                         }
                     } else {
@@ -112,7 +112,6 @@ class MealDetailsPresenter(
         } else {
             currentMeal?.let { meal ->
                 meal.idMeal?.let { id ->
-                    // ✅ ضيفنا userId
                     localRepository.removeFavorite(UserProvider.getCurrentUserId(), id)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())

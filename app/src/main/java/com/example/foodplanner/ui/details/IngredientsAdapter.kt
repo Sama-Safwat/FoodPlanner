@@ -3,6 +3,8 @@ package com.example.foodplanner.ui.details
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.foodplanner.R
+import com.bumptech.glide.Glide
 import com.example.foodplanner.databinding.ItemIngredientBinding
 
 class IngredientsAdapter : RecyclerView.Adapter<IngredientsAdapter.IngredientViewHolder>() {
@@ -34,6 +36,13 @@ class IngredientsAdapter : RecyclerView.Adapter<IngredientsAdapter.IngredientVie
         fun bind(ingredient: Pair<String, String>) {
             binding.ingredientName.text = ingredient.first
             binding.ingredientMeasure.text = ingredient.second.ifEmpty { "To taste" }
+
+            val imageUrl = "https://www.themealdb.com/images/ingredients/${ingredient.first}-small.png"
+            Glide.with(binding.root.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.ic_meal_placeholder)
+                .error(R.drawable.ic_meal_placeholder)
+                .into(binding.ingredientImage)
         }
     }
 }

@@ -9,14 +9,15 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
+        style="@style/DarkTabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/DarkTabLayout"
+        android:background="@color/surface"
+        android:contentDescription="@string/app_name"
         app:tabGravity="center"
         app:tabIndicatorFullWidth="false"
         app:tabMaxWidth="150dp"
-        app:tabMode="scrollable"
-        android:background="@color/surface"/>
+        app:tabMode="scrollable" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
@@ -44,7 +45,7 @@
             android:id="@+id/searchInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Search..."
+            android:hint="Search "
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint"
             android:inputType="text" />

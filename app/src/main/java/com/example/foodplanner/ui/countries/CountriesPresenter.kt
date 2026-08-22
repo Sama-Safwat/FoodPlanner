@@ -4,10 +4,6 @@ import com.example.foodplanner.data.repository.MealRemoteRepository
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import com.example.foodplanner.ui.countries.CountriesFragment
-
 
 class CountriesPresenter(
     private val view: CountriesContract.View,

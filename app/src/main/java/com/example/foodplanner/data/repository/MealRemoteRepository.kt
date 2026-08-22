@@ -21,6 +21,10 @@ class MealRemoteRepository(private val mealApi: MealApi) {
         return mealApi.searchMealByName(name)
     }
 
+    fun searchMealsByFirstLetter(letter: String): Single<MealResponse> {
+        return mealApi.searchMealsByFirstLetter(letter)
+    }
+
     fun getCategories(): Single<CategoryResponse> {
         return mealApi.getCategories()
     }

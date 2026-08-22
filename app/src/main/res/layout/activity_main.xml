@@ -26,18 +26,18 @@
         <FrameLayout
             android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="564dp"
             android:layout_weight="1" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="85dp"
             android:background="@color/surface"
             android:elevation="8dp"
             app:itemIconTint="@color/nav_item_colors"
-            app:itemTextColor="@color/nav_item_colors"
             app:itemRippleColor="@color/primary"
+            app:itemTextColor="@color/nav_item_colors"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
 

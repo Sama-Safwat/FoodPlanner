@@ -6,10 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.foodplanner.data.repository.UserPreferences
-import com.example.foodplanner.ui.auth.AuthActivity
+import com.example.foodplanner.ui.auth.LoginFragment
+import com.example.foodplanner.ui.auth.RegisterFragment
+import com.example.foodplanner.ui.auth.SplashFragment
 import com.example.foodplanner.ui.categories.CategoriesFragment
 import com.example.foodplanner.ui.countries.CountriesFragment
 import com.example.foodplanner.ui.favorites.FavoritesActivity
@@ -38,13 +41,18 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation = findViewById(R.id.bottomNavigation)
         toolbar = findViewById(R.id.toolbar)
 
+        toolbar.visibility = View.GONE
+        bottomNavigation.visibility = View.GONE
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
         setupToolbar()
         setupBottomNavigation()
         setupDrawer()
+        setupDrawer()
+        observeFragmentChanges()
 
         if (savedInstanceState == null) {
-            openFragment(HomeFragment())
-            bottomNavigation.selectedItemId = R.id.nav_home
+            openFragment(SplashFragment())
         }
         lifecycleScope.launch {
             val count = runCatching { (application as App).syncManager.restore() }
@@ -52,6 +60,24 @@ class MainActivity : AppCompatActivity() {
                 .getOrDefault(0)
             android.util.Log.d("SYNC", "restore finished → count=$count")
         }
+    }
+
+    private fun observeFragmentChanges() {
+        supportFragmentManager.registerFragmentLifecycleCallbacks(
+            object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentResumed(fm: androidx.fragment.app.FragmentManager, f: Fragment) {
+                    super.onFragmentResumed(fm, f)
+                    val hideChrome = f is SplashFragment || f is LoginFragment || f is RegisterFragment
+                    toolbar.visibility = if (hideChrome) View.GONE else View.VISIBLE
+                    bottomNavigation.visibility = if (hideChrome) View.GONE else View.VISIBLE
+                    drawerLayout.setDrawerLockMode(
+                        if (hideChrome) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+                        else DrawerLayout.LOCK_MODE_UNLOCKED
+                    )
+                }
+            },
+            false
+        )
     }
 
     private fun setupToolbar() {
@@ -177,15 +203,8 @@ class MainActivity : AppCompatActivity() {
 
                     UserPreferences(this).clearSession()
 
-                    val intent = Intent(
-                        this,
-                        AuthActivity::class.java
-                    ).apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    }
-
-                    startActivity(intent)
+                    supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                    openFragment(LoginFragment())
                 }
             }
 

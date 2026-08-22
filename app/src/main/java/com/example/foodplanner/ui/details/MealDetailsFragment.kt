@@ -7,9 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
-import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.foodplanner.App
@@ -21,8 +19,6 @@ import com.example.foodplanner.data.repository.MealRepository
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentMealDetailsBinding
 import com.example.foodplanner.ui.planner.PlannerActivity
-import com.example.foodplanner.utils.AuthGuard
-import com.example.foodplanner.utils.UserProvider
 
 class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
@@ -87,7 +83,11 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
     private fun setupRecyclerView() {
         ingredientsAdapter = IngredientsAdapter()
         binding.ingredientsRecyclerView.apply {
-            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(
+                context,
+                androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL,
+                false
+            )
             adapter = ingredientsAdapter
         }
     }
@@ -175,8 +175,8 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
                     <body style="margin:0;padding:0;background:#000;">
                         <iframe 
                             style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none;"
-                            src="https://www.youtube.com/embed/$videoId?autoplay=1&mute=1"
-                            allow="autoplay; encrypted-media"
+                            src="https://www.youtube.com/embed/$videoId?autoplay=0&mute=1"
+                            allow="encrypted-media"
                             referrerpolicy="strict-origin-when-cross-origin">
                         </iframe>
                     </body>
@@ -190,6 +190,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
                 settings.useWideViewPort = true
                 webViewClient = WebViewClient()
                 webChromeClient = WebChromeClient()
+                // تحميل HTML مع تعيين Base URL لحل مشكلة Referer
                 loadDataWithBaseURL(
                     "https://${requireContext().packageName}/",
                     html,
@@ -246,6 +247,7 @@ class MealDetailsFragment : Fragment(), MealDetailsContract.View {
 
     override fun onDestroyView() {
         presenter.stop()
+        // WebView لا يحتاج إلى release مثل YouTubePlayerView
         _binding = null
         super.onDestroyView()
     }

@@ -27,22 +27,25 @@ class SearchPresenter(
             return
         }
         view.showLoading()
-        repository.searchMealsByName(query)
-            .subscribeOn(Schedulers.io())
+        val call =if(query.length==1){
+            repository.searchMealsByFirstLetter(query)
+        }else{
+            repository.searchMealsByName(query)
+        }
+        call.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { response ->
-                    view.hideLoading()
-                    val meals = response.meals ?: emptyList()
-                    if (meals.isNotEmpty()) {
+                {response -> view.hideLoading()
+                val meals=response.meals?: emptyList()
+                    if(meals.isNotEmpty()){
                         view.showSearchResults(meals)
-                    } else {
-                        view.showError("No meals found")
+                    }else{
+                        view.showError("no meals found")
                     }
                 },
-                { error ->
-                    view.hideLoading()
-                    view.showError(error.message ?: "Search failed")
+                {
+                    error->view.hideLoading()
+                view.showError(error.message?:"Search failed")
                 }
             )
             .also { disposables.add(it) }

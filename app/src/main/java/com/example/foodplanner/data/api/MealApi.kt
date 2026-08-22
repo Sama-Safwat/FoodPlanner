@@ -14,6 +14,10 @@ interface MealApi {
     fun searchMealByName(
         @Query("s") mealName: String
     ): Single<MealResponse>
+    @GET("search.php")
+    fun searchMealsByFirstLetter(
+        @Query("f")letter: String
+    ): Single<MealResponse>
 
     @GET("lookup.php")
     fun getMealDetails(

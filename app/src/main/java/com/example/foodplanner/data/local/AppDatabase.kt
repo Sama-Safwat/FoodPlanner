@@ -8,7 +8,7 @@ import com.example.foodplanner.utils.Constants
 
 @Database(
     entities = [MealEntity::class, PlannedMealEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
