@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "meals",
 primaryKeys = ["userId", "idMeal"])
-data class MealEntity(
+data class MealEntity @JvmOverloads constructor(
     val userId: String = "",
     val idMeal: String = "",
     val strMeal: String = "",

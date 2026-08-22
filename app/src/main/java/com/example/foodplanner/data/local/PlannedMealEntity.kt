@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Index
 @Entity(tableName = "weekly_plan",
     indices = [Index(value = ["date", "mealId","userId"], unique = true)])
-data class PlannedMealEntity(
+data class PlannedMealEntity @JvmOverloads constructor(
     @PrimaryKey(autoGenerate = true) val planId: Int = 0,
     val userId: String = "",
     val date: String = "",

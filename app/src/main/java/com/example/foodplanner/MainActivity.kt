@@ -53,14 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             openFragment(SplashFragment())
-        }
-        lifecycleScope.launch {
-            val count = runCatching { (application as App).syncManager.restore() }
-                .onFailure { android.util.Log.e("SYNC", "restore failed", it) }
-                .getOrDefault(0)
-            android.util.Log.d("SYNC", "restore finished → count=$count")
-        }
-    }
+        }}
 
     private fun observeFragmentChanges() {
         supportFragmentManager.registerFragmentLifecycleCallbacks(

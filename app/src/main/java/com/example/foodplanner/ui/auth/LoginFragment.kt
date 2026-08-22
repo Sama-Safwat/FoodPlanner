@@ -1,5 +1,7 @@
 package com.example.foodplanner.ui.auth
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -8,6 +10,7 @@ import com.example.foodplanner.R
 import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.databinding.FragmentLoginBinding
 import com.example.foodplanner.ui.home.HomeFragment
+import com.example.foodplanner.App
 
 class LoginFragment : Fragment(R.layout.fragment_login), AuthContract.View {
 
@@ -47,6 +50,10 @@ class LoginFragment : Fragment(R.layout.fragment_login), AuthContract.View {
     override fun showError(message: String) = Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
 
     override fun onSuccess() {
+        requireActivity().lifecycleScope.launch {
+            runCatching { (requireActivity().application as App).syncManager.restore() }
+                .onFailure { android.util.Log.e("SYNC", "restore failed", it) }
+        }
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, HomeFragment())
             .commit()
