@@ -94,6 +94,7 @@
                 android:layout_marginTop="@dimen/spacing_md"
                 android:text="Add to Favorites"
                 android:textColor="@color/white"
+                android:backgroundTint="@color/primary"
                 android:textStyle="bold" />
 
             <Button
@@ -104,7 +105,16 @@
                 android:text="Add to Plan"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:backgroundTint="@color/success" />
+                android:backgroundTint="@color/success"/>
+            <Button
+                android:id="@+id/addToCalendarButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:text="Add to Google Calendar"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:backgroundTint="@color/primary" />
 
             <LinearLayout
                 android:id="@+id/ingredientsSection"
