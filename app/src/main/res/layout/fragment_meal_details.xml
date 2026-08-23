@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    tools:ignore="ExtraText">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -65,7 +67,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_md"
                 android:textSize="@dimen/text_heading"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"/>
 
             <TextView
                 android:id="@+id/mealCountry"
@@ -73,14 +76,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_xs"
                 android:textSize="@dimen/text_medium"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/text_primary" />
 
             <TextView
                 android:id="@+id/mealCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_xs"
-                android:textSize="@dimen/text_medium" />
+                android:textSize="@dimen/text_medium"
+                android:textColor="@color/text_primary"/>
 
             <Button
                 android:id="@+id/favoriteButton"
@@ -113,7 +118,8 @@
                     android:layout_height="wrap_content"
                     android:text="Ingredients"
                     android:textSize="@dimen/text_title"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/ingredientsRecyclerView"
@@ -134,7 +140,8 @@
                     android:layout_height="wrap_content"
                     android:text="Instructions"
                     android:textSize="@dimen/text_title"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"/>
 
                 <TextView
                     android:id="@+id/instructionsText"
@@ -142,7 +149,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_sm"
                     android:lineSpacingExtra="4dp"
-                    android:textSize="@dimen/text_body" />
+                    android:textSize="@dimen/text_body"
+                    android:textColor="@color/text_primary"/>
 
             </LinearLayout>
 
@@ -159,7 +167,8 @@
                     android:layout_height="wrap_content"
                     android:text="Video Tutorial"
                     android:textSize="@dimen/text_title"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"/>
 
                 <WebView
                     android:id="@+id/webView"
