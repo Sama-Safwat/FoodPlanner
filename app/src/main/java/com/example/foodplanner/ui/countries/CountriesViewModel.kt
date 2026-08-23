@@ -7,8 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.foodplanner.data.model.Area
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.MealRemoteRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
+private object CountriesCache {
+    var areasWithMeals: List<Area>? = null
+}
 class CountriesViewModel(
     private val repository: MealRemoteRepository
 ) : ViewModel() {
@@ -35,12 +40,28 @@ class CountriesViewModel(
         loadCountries()
     }
 
-    fun loadCountries() {
+    fun loadCountries(forceRefresh: Boolean = false) {
+        val cached = CountriesCache.areasWithMeals
+        if (!forceRefresh && cached != null) {
+            _countries.value = cached
+            return
+        }
+
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val response = repository.getAreas()
-                _countries.value = response.meals ?: emptyList()
+                val allAreas = repository.getAreas().meals ?: emptyList()
+
+                val areasWithMeals = mutableListOf<Area>()
+                for (area in allAreas) {
+                    if (areaHasMeals(area.strArea)) {
+                        areasWithMeals.add(area)
+                    }
+                    delay(200)
+                }
+
+                CountriesCache.areasWithMeals = areasWithMeals
+                _countries.value = areasWithMeals
                 _isLoading.value = false
             } catch (e: Exception) {
                 _error.value = "Error: ${e.message}"
@@ -49,12 +70,31 @@ class CountriesViewModel(
         }
     }
 
+    private suspend fun areaHasMeals(areaName: String?): Boolean {
+        if (areaName.isNullOrBlank()) return false
+        var attempt = 0
+        while (attempt < 3) {
+            try {
+                return repository.getMealsByArea(areaName).meals?.isNotEmpty() == true
+            } catch (e: HttpException) {
+                if (e.code() == 429) {
+                    delay(600L * (attempt + 1))
+                } else {
+                    return false
+                }
+            } catch (e: Exception) {
+                delay(300)
+            }
+            attempt++
+        }
+        return false
+    }
+
     fun loadMealsByCountry(country: String) {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val response = repository.getMealsByArea(country)
-                val mealsList = response.meals ?: emptyList()
+                val mealsList = fetchMealsByAreaWithRetry(country)
                 if (mealsList.isNotEmpty()) {
                     _meals.value = mealsList
                 } else {
@@ -67,7 +107,22 @@ class CountriesViewModel(
             }
         }
     }
-
+    private suspend fun fetchMealsByAreaWithRetry(country: String): List<Meal> {
+        var attempt = 0
+        while (attempt < 3) {
+            try {
+                return repository.getMealsByArea(country).meals ?: emptyList()
+            } catch (e: HttpException) {
+                if (e.code() == 429 && attempt < 2) {
+                    delay(600L * (attempt + 1))
+                    attempt++
+                } else {
+                    throw e
+                }
+            }
+        }
+        return emptyList()
+    }
     fun onMealClicked(mealId: String) {
         _navigateToMealDetails.value = mealId
     }

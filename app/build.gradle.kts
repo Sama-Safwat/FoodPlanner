@@ -51,7 +51,6 @@ dependencies {
 
     implementation ("com.google.firebase:firebase-firestore" )
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
-    implementation("com.google.firebase:firebase-analytics")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
@@ -75,11 +74,5 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
     implementation("com.squareup.retrofit2:adapter-rxjava3:3.0.0")
     implementation("androidx.room:room-rxjava3:2.8.0")
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.airbnb.android:lottie:6.7.1")
-    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
-    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
