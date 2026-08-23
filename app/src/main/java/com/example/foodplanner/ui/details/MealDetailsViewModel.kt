@@ -34,8 +34,8 @@ class MealDetailsViewModel(
     private val _videoUrl = MutableLiveData<String?>()
     val videoUrl: LiveData<String?> = _videoUrl
 
-    private val _navigateBack = MutableLiveData<Boolean>()
-    val navigateBack: LiveData<Boolean> = _navigateBack
+    private val _navigateBack = MutableLiveData<Boolean?>()
+    val navigateBack: LiveData<Boolean> = _navigateBack as LiveData<Boolean>
 
     private var currentMeal: Meal? = null
 
