@@ -49,6 +49,12 @@ Each meal provides:
 * View planned meals.
 * Remove meals from the plan.
 * Keep planned meals available locally.
+  
+### Google Calendar Integration
+* Meal name
+* Selected date
+* Scheduled time
+* Description indicating that the meal was added from FoodPlanner
 
 ### Categories and Countries
 
