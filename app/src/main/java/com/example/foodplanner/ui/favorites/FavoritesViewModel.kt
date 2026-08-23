@@ -17,17 +17,22 @@ class FavoritesViewModel(
     val favorites: StateFlow<List<MealEntity>> = _favorites.asStateFlow()
 
     init {
-        // Reads ONLY from Room → works with Internet OFF ✅
         viewModelScope.launch {
-            repository.getFavorites().collect { _favorites.value = it }
+            repository.getFavorites().collect { meals ->
+                _favorites.value = meals
+            }
         }
     }
 
     fun addFavorite(meal: MealEntity) {
-        viewModelScope.launch { repository.addFavorite(meal) }
+        viewModelScope.launch {
+            repository.addFavorite(meal)
+        }
     }
 
     fun removeFavorite(meal: MealEntity) {
-        viewModelScope.launch { repository.removeFavorite(meal) }
+        viewModelScope.launch {
+            repository.removeFavorite(meal)
+        }
     }
 }

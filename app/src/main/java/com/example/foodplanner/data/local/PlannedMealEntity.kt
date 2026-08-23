@@ -4,11 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Index
 @Entity(tableName = "weekly_plan",
-    indices = [Index(value = ["date", "mealId"], unique = true)])
-data class PlannedMealEntity(
+    indices = [Index(value = ["date", "mealId","userId"], unique = true)])
+data class PlannedMealEntity @JvmOverloads constructor(
     @PrimaryKey(autoGenerate = true) val planId: Int = 0,
-    val date: String,
-    val mealId: String,
-    val mealName: String,
-    val mealImageUrl: String
+    val userId: String = "",
+    val date: String = "",
+    val mealId: String = "",
+    val mealName: String = "",
+    val mealImageUrl: String = ""
 )

@@ -11,6 +11,7 @@ import com.example.foodplanner.data.local.MealEntity
 import com.example.foodplanner.databinding.ItemFavoriteBinding
 
 class FavoritesAdapter(
+    private val onItemClick: (MealEntity) -> Unit,
     private val onRemove: (MealEntity) -> Unit
 ) : ListAdapter<MealEntity, FavoritesAdapter.FavoriteViewHolder>(DIFF_CALLBACK) {
 
@@ -49,6 +50,10 @@ class FavoritesAdapter(
                 .error(R.drawable.ic_meal_placeholder)
                 .centerCrop()
                 .into(binding.imageMeal)
+
+            binding.root.setOnClickListener {
+                onItemClick(meal)
+            }
 
             binding.btnRemoveFavorite.setOnClickListener { onRemove(meal) }
         }

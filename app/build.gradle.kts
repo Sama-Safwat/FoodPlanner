@@ -45,6 +45,12 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-auth")
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    implementation ("com.google.firebase:firebase-firestore" )
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
@@ -54,7 +60,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
@@ -69,11 +74,5 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
     implementation("com.squareup.retrofit2:adapter-rxjava3:3.0.0")
     implementation("androidx.room:room-rxjava3:2.8.0")
-    implementation(platform("com.google.firebase:firebase-bom:34.14.0"))
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
-    implementation("com.airbnb.android:lottie:6.5.2")
-    implementation("com.google.android.gms:play-services-measurement-sdk-api:23.2.0")
     implementation("com.airbnb.android:lottie:6.7.1")
-
 }

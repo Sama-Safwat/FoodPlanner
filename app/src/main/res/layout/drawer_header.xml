@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:padding="@dimen/spacing_lg"
+    android:background="@color/surface_variant">
+
+    <TextView
+        android:id="@+id/tvDrawerTitle"
+        style="@style/FoodPlannerTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="FoodPlanner"
+        android:textSize="@dimen/text_heading" />
+
+    <TextView
+        android:id="@+id/tvDrawerSubtitle"
+        style="@style/FoodPlannerBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your meals, your plan"
+        android:layout_marginTop="@dimen/spacing_xs" />
+
+</LinearLayout>

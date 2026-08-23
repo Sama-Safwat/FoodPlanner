@@ -4,12 +4,22 @@ import android.app.Application
 import com.example.foodplanner.data.local.AppDatabase
 import com.example.foodplanner.data.repository.FavoritesRepository
 import com.example.foodplanner.data.repository.WeeklyPlanRepository
+import com.example.foodplanner.data.sync.SyncManager
 
 class App : Application() {
 
     val database by lazy { AppDatabase.getDatabase(this) }
+    val syncManager by lazy { SyncManager(database.mealDao(), database.planDao()) }
+    val favoritesRepository by lazy { FavoritesRepository(database.favoritesDao(), syncManager) }
+    val planRepository by lazy { WeeklyPlanRepository(database.planDao(), syncManager) }
 
-    val favoritesRepository by lazy { FavoritesRepository(database.favoritesDao()) }
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+    }
 
-    val planRepository by lazy { WeeklyPlanRepository(database.planDao()) }
+    companion object {
+        lateinit var instance: App
+            private set
+    }
 }

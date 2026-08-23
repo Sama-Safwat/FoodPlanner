@@ -16,9 +16,15 @@ interface FavoritesDao {
     @Delete
     suspend fun removeFavorite(meal: MealEntity)
 
-    @Query("SELECT * FROM meals WHERE idMeal = :mealId")
-    suspend fun getFavoriteById(mealId: String): MealEntity?
+    @Query("DELETE FROM meals WHERE userId = :userId AND idMeal = :mealId")
+    suspend fun removeFavoriteById(userId: String, mealId: String)
 
-    @Query("SELECT * FROM meals")
-    fun getAllFavorites(): Flow<List<MealEntity>>
+    @Query("SELECT * FROM meals WHERE userId = :userId")
+    fun getAllFavorites(userId: String): Flow<List<MealEntity>>
+
+    @Query("SELECT * FROM meals WHERE userId = :userId AND idMeal = :mealId")
+    suspend fun getFavoriteById(userId: String, mealId: String): MealEntity?
+
+    @Query("SELECT EXISTS(SELECT 1 FROM meals WHERE userId = :userId AND idMeal = :mealId)")
+    suspend fun isFavorite(userId: String, mealId: String): Boolean
 }

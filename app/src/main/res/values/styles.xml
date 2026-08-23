@@ -17,4 +17,12 @@
         <item name="android:textColor">@color/text_secondary</item>
         <item name="android:textSize">@dimen/text_body</item>
     </style>
+    <style name="DarkTabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="tabBackground">@color/surface</item>
+        <item name="tabTextColor">@color/text_secondary</item>
+        <item name="tabSelectedTextColor">@color/text_primary</item>
+        <item name="tabIndicatorColor">@color/text_secondary</item>
+        <item name="tabIndicatorHeight">2dp</item>
+        <item name="tabIndicatorFullWidth">true</item>
+    </style>
 </resources>

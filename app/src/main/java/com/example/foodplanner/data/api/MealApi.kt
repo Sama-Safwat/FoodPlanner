@@ -1,60 +1,104 @@
 package com.example.foodplanner.data.api
 
+import com.example.foodplanner.data.model.AreaResponse
 import com.example.foodplanner.data.model.CategoryResponse
+import com.example.foodplanner.data.model.IngredientResponse
 import com.example.foodplanner.data.model.MealResponse
+import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface MealApi {
 
-    // Search meal by name
+    @GET("random.php")
+    fun getRandomMeal(): Single<MealResponse>
+
     @GET("search.php")
-    suspend fun searchMealByName(
+    fun searchMealByName(
+        @Query("s") mealName: String
+    ): Single<MealResponse>
+
+    @GET("lookup.php")
+    fun getMealDetails(
+        @Query("i") mealId: String
+    ): Single<MealResponse>
+
+    @GET("search.php")
+    fun searchMealsByFirstLetter(
+        @Query("f") letter: String
+    ): Single<MealResponse>
+
+    @GET("categories.php")
+    fun getCategories(): Single<CategoryResponse>
+
+    @GET("list.php")
+    fun getAreas(
+        @Query("a") list: String = "list"
+    ): Single<AreaResponse>
+
+    @GET("list.php")
+    fun getIngredients(
+        @Query("i") list: String = "list"
+    ): Single<IngredientResponse>
+
+    @GET("filter.php")
+    fun getMealsByCategory(
+        @Query("c") category: String
+    ): Single<MealResponse>
+
+    @GET("filter.php")
+    fun getMealsByArea(
+        @Query("a") area: String
+    ): Single<MealResponse>
+
+    @GET("filter.php")
+    fun getMealsByIngredient(
+        @Query("i") ingredient: String
+    ): Single<MealResponse>
+
+    @GET("random.php")
+    suspend fun getRandomMealSuspend(): MealResponse
+
+    @GET("search.php")
+    suspend fun searchMealByNameSuspend(
         @Query("s") mealName: String
     ): MealResponse
 
-
-    // Search meals by first letter
-    @GET("search.php")
-    suspend fun searchMealsByFirstLetter(
-        @Query("f") letter: String
-    ): MealResponse
-
-
-    // Get full meal details by ID
     @GET("lookup.php")
-    suspend fun getMealDetails(
+    suspend fun getMealDetailsSuspend(
         @Query("i") mealId: String
     ): MealResponse
 
+    @GET("search.php")
+    suspend fun searchMealsByFirstLetterSuspend(
+        @Query("f") letter: String
+    ): MealResponse
 
-    // Get a single random meal
-    @GET("random.php")
-    suspend fun getRandomMeal(): MealResponse
-
-
-    // Get all meal categories
     @GET("categories.php")
-    suspend fun getCategories(): CategoryResponse
+    suspend fun getCategoriesSuspend(): CategoryResponse
 
+    @GET("list.php")
+    suspend fun getAreasSuspend(
+        @Query("a") list: String = "list"
+    ): AreaResponse
 
-    // Get meals by category
+    @GET("list.php")
+    suspend fun getIngredientsSuspend(
+        @Query("i") list: String = "list"
+    ): IngredientResponse
+
     @GET("filter.php")
-    suspend fun getMealsByCategory(
+    suspend fun getMealsByCategorySuspend(
         @Query("c") category: String
     ): MealResponse
 
-
-    // Get meals by country / area
     @GET("filter.php")
-    suspend fun getMealsByArea(
+    suspend fun getMealsByAreaSuspend(
         @Query("a") area: String
     ): MealResponse
 
-
-    // Get meals by main ingredient
     @GET("filter.php")
-    suspend fun getMealsByIngredient(
+    suspend fun getMealsByIngredientSuspend(
         @Query("i") ingredient: String
     ): MealResponse
 }
