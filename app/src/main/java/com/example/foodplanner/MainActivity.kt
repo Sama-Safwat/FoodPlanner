@@ -2,6 +2,7 @@ package com.example.foodplanner
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -52,6 +53,10 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             openFragment(SplashFragment())
         }
+        val userPrefs = UserPreferences(this)
+        if (userPrefs.isLoggedIn()) {
+            lifecycleScope.launch { App.instance.syncManager.restore()
+            } }
     }
 
     private fun observeFragmentChanges() {

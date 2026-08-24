@@ -34,8 +34,8 @@ class MealDetailsViewModel(
     private val _videoUrl = MutableLiveData<String?>()
     val videoUrl: LiveData<String?> = _videoUrl
 
-    private val _navigateBack = MutableLiveData<Boolean>()
-    val navigateBack: LiveData<Boolean> = _navigateBack
+    private val _navigateBack = MutableLiveData<Boolean?>()
+    val navigateBack: LiveData<Boolean?> = _navigateBack
 
     private var currentMeal: Meal? = null
 
@@ -75,7 +75,11 @@ class MealDetailsViewModel(
             _isFavorite.value = false
         }
     }
-
+    fun refreshFavoriteStatus() {
+        val id = currentMeal?.idMeal ?: return
+        viewModelScope.launch {
+            checkFavoriteStatus(id)
+        } }
     fun toggleFavorite() {
         val meal = currentMeal ?: return
         val currentFav = _isFavorite.value ?: false

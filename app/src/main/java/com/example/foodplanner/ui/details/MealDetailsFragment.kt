@@ -17,11 +17,10 @@ import com.example.foodplanner.data.api.RetrofitInstance
 import com.example.foodplanner.data.local.AppDatabase
 import com.example.foodplanner.data.model.Meal
 import com.example.foodplanner.data.repository.FavoritesRepository
+import com.example.foodplanner.data.repository.UserPreferences
 import com.example.foodplanner.data.repository.MealRemoteRepository
 import com.example.foodplanner.databinding.FragmentMealDetailsBinding
 import com.example.foodplanner.ui.planner.PlannerActivity
-import com.example.foodplanner.utils.UserProvider
-import com.google.firebase.auth.FirebaseAuth
 import android.provider.CalendarContract
 import java.util.Calendar
 
@@ -32,6 +31,7 @@ class MealDetailsFragment : Fragment() {
 
     private lateinit var viewModel: MealDetailsViewModel
     private lateinit var ingredientsAdapter: IngredientsAdapter
+    private lateinit var userPrefs: UserPreferences
 
     private var mealId: String = ""
     private var currentMeal: Meal? = null
@@ -78,7 +78,7 @@ class MealDetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ) {
         super.onViewCreated(view, savedInstanceState)
-
+        userPrefs = UserPreferences(requireContext())
         setupRecyclerView()
         setupViewModel()
         setupListeners()
@@ -193,13 +193,11 @@ class MealDetailsFragment : Fragment() {
 
     private fun setupListeners() {
 
-        // -------------------------
         // Favorite
-        // -------------------------
 
         binding.favoriteButton.setOnClickListener {
 
-            if (UserProvider.getCurrentUserId() == "guest") {
+            if (userPrefs.isGuest()) {
 
                 Toast.makeText(
                     requireContext(),
@@ -213,22 +211,18 @@ class MealDetailsFragment : Fragment() {
             viewModel.toggleFavorite()
         }
 
-        // -------------------------
         // Back
-        // -------------------------
 
         binding.backButton.setOnClickListener {
 
             viewModel.onBackPressed()
         }
 
-        // -------------------------
         // Add To Planner
-        // -------------------------
 
         binding.addToPlanButton.setOnClickListener {
 
-            if (UserProvider.getCurrentUserId() == "guest") {
+            if (userPrefs.isGuest()) {
 
                 Toast.makeText(
                     requireContext(),
@@ -266,12 +260,15 @@ class MealDetailsFragment : Fragment() {
             }
         }
 
-        // -------------------------
         // Add To Google Calendar
-        // -------------------------
 
         binding.addToCalendarButton.setOnClickListener {
 
+            if (userPrefs.isGuest()) {
+                Toast.makeText( requireContext()
+                    , "Please login first to add to calendar"
+                    , Toast.LENGTH_SHORT ).show()
+                return@setOnClickListener }
             currentMeal?.let { meal ->
 
                 showDatePickerForCalendar(
@@ -286,9 +283,7 @@ class MealDetailsFragment : Fragment() {
         }
     }
 
-    // =========================================================
     // Google Calendar Bonus
-    // =========================================================
 
     private fun showDatePickerForCalendar(mealName: String) {
 
@@ -406,9 +401,7 @@ class MealDetailsFragment : Fragment() {
         }
     }
 
-    // =========================================================
     // Loading
-    // =========================================================
 
     private fun showLoading() {
 
@@ -434,9 +427,7 @@ class MealDetailsFragment : Fragment() {
         }
     }
 
-    // =========================================================
     // Meal Details
-    // =========================================================
 
     private fun showMealDetails(
         meal: Meal
@@ -469,9 +460,7 @@ class MealDetailsFragment : Fragment() {
             .into(binding.mealImage)
     }
 
-    // =========================================================
     // Favorites
-    // =========================================================
 
     private fun showFavoriteStatus(
         isFavorite: Boolean
@@ -503,9 +492,7 @@ class MealDetailsFragment : Fragment() {
         }
     }
 
-    // =========================================================
     // Video
-    // =========================================================
 
     private fun showVideo(
         videoUrl: String
@@ -578,9 +565,7 @@ class MealDetailsFragment : Fragment() {
         }
     }
 
-    // =========================================================
     // Ingredients
-    // =========================================================
 
     private fun showIngredients(
         ingredients: List<Pair<String, String>>
@@ -602,9 +587,7 @@ class MealDetailsFragment : Fragment() {
         )
     }
 
-    // =========================================================
     // Error
-    // =========================================================
 
     private fun showError(
         message: String
@@ -623,18 +606,14 @@ class MealDetailsFragment : Fragment() {
             message
     }
 
-    // =========================================================
     // Navigation
-    // =========================================================
 
     private fun navigateBack() {
 
         parentFragmentManager.popBackStack()
     }
 
-    // =========================================================
     // YouTube ID
-    // =========================================================
 
     private fun extractYouTubeId(
         url: String
@@ -680,6 +659,11 @@ class MealDetailsFragment : Fragment() {
 
         return null
     }
+    override fun onResume() {
+        super.onResume()
+        if (::viewModel.isInitialized) {
+            viewModel.refreshFavoriteStatus()
+        } }
 
     override fun onDestroyView() {
 

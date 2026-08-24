@@ -35,6 +35,7 @@ class AuthViewModel(
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     userPrefs.saveUser(user?.uid ?: "", user?.email, isGuest = false)
+                    App.instance.appScope.launch { App.instance.syncManager.restore() }
                     _isLoggedIn.value = true
                 } else {
                     _error.value = task.exception?.localizedMessage ?: "Login failed"
@@ -58,6 +59,7 @@ class AuthViewModel(
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     userPrefs.saveUser(user?.uid ?: "", username, isGuest = false)
+                    App.instance.appScope.launch { App.instance.syncManager.restore() }
                     _isLoggedIn.value = true
                 } else {
                     _error.value = task.exception?.localizedMessage ?: "Registration failed"
